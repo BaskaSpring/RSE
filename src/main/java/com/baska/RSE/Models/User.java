@@ -44,11 +44,14 @@ public final class User {
     @Column(name = "middle_name")
     private String middleName;
 
-    @Column(name = "year_of_birht")
+    @Column(name = "year_of_birth")
     private String yearOfBirth;
 
     @Column(name = "telephone")
     private String telephone;
+
+    @Column(name = "enabled")
+    private boolean enabled;
 
     @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.MERGE)
     @JoinTable(
@@ -58,10 +61,6 @@ public final class User {
     )
     private Set<Role> roles  = new HashSet<>();
 
-    @Column(name = "login_disabled")
-    private boolean loginDisabled;
 
-    @Column(name = "failed_login_attemps")
-    private int failedLoginAttempts;
 
 }
