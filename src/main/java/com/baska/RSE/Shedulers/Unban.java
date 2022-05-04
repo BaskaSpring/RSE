@@ -21,10 +21,8 @@ public class Unban {
     @Scheduled(cron = "10 * * * * *")
     public void unban(){
         List<Banned> banneds = bannedRepository.findAllByTime(Instant.now());
-        System.out.println("asdasd]");
         for (Banned element : banneds){
             bannedRepository.delete(element);
         }
-
     }
 }

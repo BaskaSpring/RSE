@@ -4,22 +4,17 @@ import com.baska.RSE.Models.User;
 import com.baska.RSE.Payload.UserReg;
 import com.baska.RSE.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
-@org.springframework.stereotype.Controller
+@Controller
 public class RegistrationController {
     @Autowired
     private UserService userService;
-
-//    @Autowired
-//    private SecurityService securityService;
-//
-//    @Autowired
-//    private UserValidator userValidator;
 
     @GetMapping("/registration")
     public String registration(Model model) {
@@ -33,9 +28,6 @@ public class RegistrationController {
         user.setUserName(userReg.getUserName());
         user.setPassword(userReg.getPassword());
         userService.save(user);
-
-        //securityService.autoLogin(userForm.getUsername(), userForm.getPa*sswordConfirm());
-
         return "redirect:/welcome";
     }
 
@@ -46,7 +38,6 @@ public class RegistrationController {
 
         if (logout != null)
             model.addAttribute("message", "You have been logged out successfully.");
-
         return "login";
     }
 
