@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.Set;
 
 @Data
@@ -27,6 +28,12 @@ public class ProjectTable {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "enabled")
+    private Boolean enabled;
+
+    @Column(name = "timestamp")
+    private Instant timestamp =Instant.now();
+
     @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.REFRESH)
     @JoinTable(
             name = "projects_table_roles",
@@ -42,6 +49,5 @@ public class ProjectTable {
             inverseJoinColumns = @JoinColumn(name = "column_id")
     )
     private Set<TableColumn> columns;
-
 
 }

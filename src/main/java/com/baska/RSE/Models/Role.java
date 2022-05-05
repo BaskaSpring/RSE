@@ -16,7 +16,10 @@ public final class Role {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+
     @Column(name = "role")
     private String role;
+
+    private boolean enabled;
 
 }

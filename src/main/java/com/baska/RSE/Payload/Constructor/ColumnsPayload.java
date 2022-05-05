@@ -12,5 +12,5 @@ import java.util.List;
 public class ColumnsPayload {
     private String name;
     private String type;
-    private List<EnumsValuePayload> enumsValue;
+    private List<String> enumsValue;
 }
