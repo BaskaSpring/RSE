@@ -2,8 +2,12 @@ package com.baska.RSE.Controllers;
 
 import com.baska.RSE.DAO.ProjectTableDAO;
 import com.baska.RSE.DAO.RoleDAO;
+import com.baska.RSE.DAO.TableColumnDAO;
 import com.baska.RSE.Models.ProjectTable;
 import com.baska.RSE.Models.Role;
+import com.baska.RSE.Models.TableColumn;
+import com.baska.RSE.Models.Type;
+import com.baska.RSE.Payload.Constructor.ColumnsPayload;
 import com.baska.RSE.Payload.Constructor.ProjectTablePayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,8 +16,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -27,13 +31,88 @@ public class ConstructorController {
     @Autowired
     ProjectTableDAO projectTableDAO;
 
+    @Autowired
+    TableColumnDAO tableColumnDAO;
+
 
     @GetMapping("/columns/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String getColumns(@PathVariable String id,Model model) {
-        System.out.println(id);
-        return "constructor/index";
+        if (!projectTableDAO.isPresent(id)){
+            return "redirect:/constructor/index";
+        }
+        ProjectTable projectTable = projectTableDAO.getProjectTableById(id);
+        List<Type> types = new ArrayList<>();
+        types.add(Type.BOOLEAN);
+        types.add(Type.ENUM);
+        types.add(Type.NUMBER);
+        types.add(Type.STRING);
+        model.addAttribute("types",types);
+        model.addAttribute("columnsPayload",new ColumnsPayload());
+        model.addAttribute("projectTable",projectTable);
+        return "constructor/columns";
     }
+
+    @GetMapping("/columns/{id}/save")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String getSave(@PathVariable String id,Model model) {
+        if (!projectTableDAO.isPresent(id)){
+            return "redirect:/constructor/index";
+        }
+        ProjectTable projectTable = projectTableDAO.getProjectTableById(id);
+        projectTable.setEnabled(true);
+        projectTableDAO.save(projectTable);
+        return "redirect:/constructor/index";
+    }
+
+    @PostMapping("/columns/{id}/addColumn")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String postAddColumn(@PathVariable String id,
+                                @ModelAttribute("columnsPayload") @Valid ColumnsPayload columnsPayload,
+                                BindingResult bindingResult,
+                                Model model) {
+        ProjectTable projectTable = projectTableDAO.getProjectTableById(id);
+        if (projectTable!=null) {
+            if (bindingResult.hasErrors())
+                return "constructor/columns"+projectTable.getId();
+            List<Type> types = new ArrayList<>();
+            types.add(Type.BOOLEAN);
+            types.add(Type.ENUM);
+            types.add(Type.NUMBER);
+            types.add(Type.STRING);
+            TableColumn tableColumn = new TableColumn();
+            tableColumn.setName(columnsPayload.getName());
+            boolean finded = false;
+            if (Type.BOOLEAN.toString().equals(columnsPayload.getType())) {
+                finded = true;
+                tableColumn.setType(Type.BOOLEAN);
+            }
+            if (Type.ENUM.toString().equals(columnsPayload.getType())) {
+                finded = true;
+                tableColumn.setType(Type.ENUM);
+            }
+            if (Type.STRING.toString().equals(columnsPayload.getType())) {
+                finded = true;
+                tableColumn.setType(Type.STRING);
+            }
+            if (Type.NUMBER.toString().equals(columnsPayload.getType())) {
+                finded = true;
+                tableColumn.setType(Type.NUMBER);
+            }
+            if (finded){
+                TableColumn newTableColumn = tableColumnDAO.save(tableColumn);
+                projectTable.getColumns().add(newTableColumn);
+                ProjectTable resp = projectTableDAO.save(projectTable);
+                model.addAttribute("types",types);
+                model.addAttribute("projectTable",resp);
+
+                return "redirect:/constructor/columns/" + resp.getId();
+            }
+            return "redirect:/constructor/index";
+        }
+        return "redirect:/constructor/index";
+    }
+
 
     @GetMapping("/index")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -52,7 +131,7 @@ public class ConstructorController {
     @PostMapping("/createProjectTable")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String postCreate(@ModelAttribute("projectTablePayload") @Valid ProjectTablePayload projectTablePayload,
-                         BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+                         BindingResult bindingResult) {
         if (bindingResult.hasErrors())
             return "constructor/createProjectTable";
 

@@ -1,18 +1,36 @@
 package com.baska.RSE.DAO;
 
 import com.baska.RSE.Models.ProjectTable;
+import com.baska.RSE.Models.Role;
 import com.baska.RSE.Payload.Constructor.ProjectTablePayload;
 import com.baska.RSE.Repositories.ProjectTableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class ProjectTableDAO {
 
     @Autowired
     ProjectTableRepository projectTableRepository;
+
+    public Set<ProjectTable> getProjectsByRoles(Set<Role> roles){
+        List<ProjectTable> projectTables = projectTableRepository.getEnabledProjects(true);
+        Set<ProjectTable> response = new HashSet<>();
+        for (ProjectTable obj: projectTables){
+            Set<Role> rolesObj = obj.getRoles();
+            for (Role roleObj :rolesObj){
+                for (Role roleUser: roles){
+                    if (roleObj==roleUser){
+                        response.add(obj);
+                    }
+                }
+            }
+        }
+        return response;
+    }
+
 
     public ProjectTable newProjectTable(ProjectTablePayload projectTablePayload){
         Optional<ProjectTable> projectTable = projectTableRepository.findByName(projectTablePayload.getName());
@@ -38,4 +56,6 @@ public class ProjectTableDAO {
             return false;
         return projectTableRepository.findById(id).isPresent();
     }
+
+
 }

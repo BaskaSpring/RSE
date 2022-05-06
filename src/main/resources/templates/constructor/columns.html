@@ -10,31 +10,50 @@
 <header th:insert="header :: header"></header>
 
 <div class="container mt-5 pt-5">
-    Выбранные Роли:
-    <form class="form-horizontal" th:action="@{/constructor/selectRoles/{id}/addrole(id=${projectTable.getId()})}" method="post" enctype="multipart/form-data" >
-        <fieldset>
-            <div class="form-group">
-                <div class="col-lg-10">
-                    <div th:each="role : ${projectTable.getRoles()}">
-                        <span th:text="${role.getRole()}" />
-                    </div>
-                </div>
-            </div>
+    Колонки
+    <div class="form-group">
+        <div class="col-lg-10">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Имя Колонки</th>
+                    <th>Тип Колонки</th>
+                    <th>Редактировать</th>
+                    <th>Удалить</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="column : ${projectTable.getColumns()}">
+                    <td th:text="${column.name}">asdasd</td>
+                    <td th:text="${column.type}">aws</td>
+                    <td>Редактировать</td>
+                    <td>Удалить</td>
+                </tr>
+                </tbody>
+             </table>
+
+        </div>
+    </div>
+    <form name='regForm' th:object="${columnsPayload}" th:action="@{/constructor/columns/{id}/addColumn(id=${projectTable.getId()})}" method="post">
             <div class="form-group">
                 <div class="col-lg-6 col-lg-offset-2">
-                    <div class="input-group">
-                        <select name="roleId" class="form-select" id="inputGroupSelect04" aria-label="Example select with button addon">
-                            <option th:each="role : ${roles}"
-                                    th:value="${role.getId()}"
-                                    th:text="${role.getRole()}">Роль</option>
-                        </select>
-                        <button class="btn btn-outline-secondary" type="submit">Добавить роль</button>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="inputGroup-sizing-default">Имя колонки</span>
+                        <input type="text" th:field="*{name}" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
                     </div>
+
+                    <div class="input-group">
+                        <select th:field="*{type}" class="form-select" id="inputGroupSelect04" aria-label="Example select with button addon">
+                            <option th:each="type : ${types}"
+                                    th:value="${type.name()}"
+                                    th:text="${type.name()}">Тип</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-outline-secondary" type="submit">Добавить Колонку</button>
                 </div>
             </div>
-        </fieldset>
     </form>
-    <a class="btn btn-primary" th:href="@{/constructor/columns/{id}(id=${projectTable.getId()})}" role="button">Создать колонки</a>
+    <a class="btn btn-primary" th:href="@{/constructor/columns/{id}/save(id=${projectTable.getId()})}" role="button">Сохранить</a>-->
 </div>
 
 <script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>

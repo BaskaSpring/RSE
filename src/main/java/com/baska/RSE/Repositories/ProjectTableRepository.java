@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -17,4 +18,8 @@ public interface ProjectTableRepository extends JpaRepository<ProjectTable,Strin
 
     @Query("select x from ProjectTable as x where x.id =:id")
     Optional<ProjectTable> findById(@Param("id")String id);
+
+
+    @Query("select x from ProjectTable as x where x.enabled=:enabled")
+    List<ProjectTable> getEnabledProjects(@Param("enabled")Boolean enabled);
 }
