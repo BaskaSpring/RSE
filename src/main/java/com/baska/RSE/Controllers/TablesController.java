@@ -6,15 +6,15 @@ import com.baska.RSE.DAO.UserDAO;
 import com.baska.RSE.Models.ProjectTable;
 import com.baska.RSE.Models.Role;
 import com.baska.RSE.Models.TableColumn;
+import com.baska.RSE.Models.Type;
+import com.baska.RSE.Payload.Tables.MapPayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 @RequestMapping("/tables")
@@ -25,6 +25,49 @@ public class TablesController {
 
     @Autowired
     ProjectTableDAO projectTableDAO;
+
+
+    @PostMapping("/{id}/new")
+    public String postNew(@ModelAttribute("object") MapPayload object, @PathVariable String id, Principal principal, Model model) {
+        if (!projectTableDAO.isPresent(id)){
+            return "redirect:/tables/index";
+        }
+        ProjectTable projectTable = projectTableDAO.getProjectTableById(id);
+        Set<Role> rolesProject = projectTable.getRoles();
+        Set<Role> rolesUser = userDAO.getRoles(principal.getName());
+        boolean havePermission = false;
+        for (Role elproj :rolesProject){
+            for (Role eluser: rolesUser){
+                if (elproj == eluser) {
+                    havePermission = true;
+                    break;
+                }
+            }
+            if (havePermission){
+                break;
+            }
+        }
+        if (!havePermission){
+            return "redirect:/tables/index";
+        }
+        HashMap<Long,List<String>> enumValues = new HashMap<>();
+        Set<TableColumn> tableColumns = projectTable.getColumns();
+        tableColumns.forEach(x->System.out.println(x.getName()));
+        for (TableColumn el: tableColumns) {
+            if (el.getType()== Type.ENUM){
+                Long key = el.getId();
+                List<String> values = new ArrayList<>();
+                el.getEnumTypes().forEach(x->values.add(x.getValue()));
+                enumValues.put(key,values);
+            }
+        }
+        MapPayload mapPayload = new MapPayload();
+        model.addAttribute("object",mapPayload.getObject());
+        model.addAttribute("enumValues",enumValues);
+        model.addAttribute("columns",tableColumns);
+        model.addAttribute("projectTable",projectTable);
+        return "tables/new";
+    }
 
     @GetMapping("/{id}/new")
     public String getNew(@PathVariable String id, Principal principal,Model model) {
@@ -49,10 +92,26 @@ public class TablesController {
         if (!havePermission){
             return "redirect:/tables/index";
         }
+        MapPayload mapPayload = new MapPayload();
+        Map<TableColumn,String> columnStringMap = new HashMap<>();
+
+        HashMap<Long,List<String>> enumValues = new HashMap<>();
         Set<TableColumn> tableColumns = projectTable.getColumns();
         tableColumns.forEach(x->System.out.println(x.getName()));
+        for (TableColumn el: tableColumns) {
+            if (el.getType()== Type.ENUM){
+                Long key = el.getId();
+                List<String> values = new ArrayList<>();
+                el.getEnumTypes().forEach(x->values.add(x.getValue()));
+                enumValues.put(key,values);
+            }
+            columnStringMap.put(el, "");
+        }
+        mapPayload.setObject(columnStringMap);
+        model.addAttribute("mapPayload",mapPayload);
+        model.addAttribute("enumValues",enumValues);
         model.addAttribute("columns",tableColumns);
-        model.addAttribute("object",projectTable);
+        model.addAttribute("projectTable",projectTable);
         return "tables/new";
     }
 

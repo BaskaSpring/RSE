@@ -4,5 +4,6 @@ public enum Type {
     STRING,
     NUMBER,
     BOOLEAN,
-    ENUM
+    ENUM,
+    DATE
 }

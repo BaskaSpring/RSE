@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -22,16 +22,20 @@ public class TableColumn {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "priority")
+    private int priority;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
     private Type type;
 
-    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.MERGE)
+
+    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.REFRESH)
     @JoinTable(
-            name = "table_enum_types",
-            joinColumns = @JoinColumn(name = "table_id"),
+            name = "value_enum",
+            joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "enum_id")
     )
-    private List<EnumTypes> enumTypes;
+    private Set<EnumValues> enumTypes;
 
 }

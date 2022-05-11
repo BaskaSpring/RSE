@@ -9,6 +9,8 @@
 
 <header th:insert="header :: header"></header>
 
+
+
 <div class="container mt-5 pt-5">
     <table class="table table-bordered">
         <thead>
@@ -17,26 +19,41 @@
         </tr>
         </thead>
         <tbody>
-        <tr class="even pointer" id="tablerow">
-            <div th:each="obj: ${columns}">
-                <div th:if="${obj.type.toString().equals('STRING')}">
-                    <td><input type="text" class="form-control" placeholder="STRING" aria-label="Username" aria-describedby="basic-addon1"></td>
+        <form th:object="${mapPayload}">
+            <tr class="even pointer" id="tablerow">
+                <div th:each="object: ${mapPayload.object.entrySet()}">
+                    <div th:if="${object.key.toString().equals('STRING')}">
+                        <td><input th:field="${object.put(obj.id)}" type="text" class="form-control" placeholder="STRING" aria-label="Username"
+                                   aria-describedby="basic-addon1"></td>
+                    </div>
+                    <div th:if="${obj.type.toString().equals('DATE')}">
+                        <td><input type="date" class="form-control" placeholder="date" aria-label="Username"
+                                   aria-describedby="basic-addon1"></td>
+                    </div>
+                    <div th:if="${obj.type.toString().equals('NUMBER')}">
+                        <td><input type="number" class="form-control" placeholder="Number" aria-label="Username"
+                                   aria-describedby="basic-addon1"></td>
+                    </div>
+                    <div th:if="${obj.type.toString().equals('BOOLEAN')}">
+                        <td><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"></td>
+                    </div>
+                    <div th:if="${obj.type.toString().equals('ENUM')}">
+                        <div th:each="enum: ${enumValues}">
+                            <div th:if="${enum.key}==${obj.id}">
+                                <td><select class="form-select" id="inputGroupSelect04"
+                                            aria-label="Example select with button addon">
+                                    <option th:each="value : ${enum.value}"
+                                            th:value="${value}"
+                                            th:text="${value}">Тип
+                                    </option>
+                                </select>
+                                </td>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div th:if="${obj.type.toString().equals('NUMBER')}">
-                    <td><input type="number" class="form-control" placeholder="Number" aria-label="Username" aria-describedby="basic-addon1"></td>
-                </div>
-                <div th:if="${obj.type.toString().equals('BOOLEAN')}">
-                    <td><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"></td>
-                </div>
-                <div th:if="${obj.type.toString().equals('ENUM')}">
-                    <td><select class="form-select" aria-label="Default select example">
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="3">Three</option>
-                    </select></td>
-                </div>
-            </div>
-        </tr>
+            </tr>
+        </form>
         </tbody>
     </table>
 </div>

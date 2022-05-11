@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 <head>
     <meta charset="utf-8">
     <title>Конструктор</title>
@@ -16,6 +17,8 @@
             <table class="table table-bordered">
                 <thead>
                 <tr>
+                    <th>Приоритет</th>
+                    <th>Изменение приоритета</th>
                     <th>Имя Колонки</th>
                     <th>Тип Колонки</th>
                     <th>Редактировать</th>
@@ -24,36 +27,55 @@
                 </thead>
                 <tbody>
                 <tr th:each="column : ${projectTable.getColumns()}">
-                    <td th:text="${column.name}">asdasd</td>
-                    <td th:text="${column.type}">aws</td>
-                    <td>Редактировать</td>
-                    <td>Удалить</td>
+                    <td th:text="${column.priority}">priority</td>
+                    <td>
+                        <a th:href="@{/constructor/columns/{id}/edit/{columnId}/up(id=${projectTable.id},columnId=${column.id})}"
+                           class="btn btn-primary">Верх</a>
+                        <a th:href="@{/constructor/columns/{id}/edit/{columnId}/down(id=${projectTable.id},columnId=${column.id})}"
+                           class="btn btn-primary">Вниз</a>
+                    </td>
+                    <td th:text="${column.name}">name</td>
+                    <td th:text="${column.type}">type</td>
+                    <div th:if="${column.type.toString().equals('ENUM')}">
+                        <td><a th:href="@{/constructor/columns/{id}/editEnum/{columnId}/(id=${projectTable.id},columnId=${column.id})}">Редактировать</a></td>
+                    </div>
+                    <div th:if="${!column.type.toString().equals('ENUM')}">
+                        <td>Редактировать</td>
+                    </div>
+                    <td>
+                        <a th:href="@{/constructor/columns/{id}/edit/{columnId}/delete(id=${projectTable.id},columnId=${column.id})}"
+                               class="btn btn-primary">Удалить
+                        </a>
+                    </td>
                 </tr>
                 </tbody>
-             </table>
-
+            </table>
         </div>
     </div>
-    <form name='regForm' th:object="${columnsPayload}" th:action="@{/constructor/columns/{id}/addColumn(id=${projectTable.getId()})}" method="post">
-            <div class="form-group">
-                <div class="col-lg-6 col-lg-offset-2">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text" id="inputGroup-sizing-default">Имя колонки</span>
-                        <input type="text" th:field="*{name}" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
-                    </div>
-
-                    <div class="input-group">
-                        <select th:field="*{type}" class="form-select" id="inputGroupSelect04" aria-label="Example select with button addon">
-                            <option th:each="type : ${types}"
-                                    th:value="${type.name()}"
-                                    th:text="${type.name()}">Тип</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-outline-secondary" type="submit">Добавить Колонку</button>
+    <form name='columnForm' th:object="${columnsPayload}"
+          th:action="@{/constructor/columns/{id}/addColumn(id=${projectTable.getId()})}" method="post">
+        <div class="form-group">
+            <div class="col-lg-6 col-lg-offset-2">
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="inputGroup-sizing-default">Имя колонки</span>
+                    <input type="text" th:field="*{name}" class="form-control" aria-label="Sizing example input"
+                           aria-describedby="inputGroup-sizing-default">
                 </div>
+
+                <div class="input-group">
+                    <select th:field="*{type}" class="form-select" id="inputGroupSelect04"
+                            aria-label="Example select with button addon">
+                        <option th:each="type : ${types}"
+                                th:value="${type.name()}"
+                                th:text="${type.name()}">Тип
+                        </option>
+                    </select>
+                </div>
+                <button class="btn btn-outline-secondary" type="submit">Добавить Колонку</button>
             </div>
+        </div>
     </form>
-    <a class="btn btn-primary" th:href="@{/constructor/columns/{id}/save(id=${projectTable.getId()})}" role="button">Сохранить</a>-->
+    <a class="btn btn-primary" th:href="@{/constructor/columns/{id}/save(id=${projectTable.getId()})}" role="button">Сохранить</a>
 </div>
 
 <script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>

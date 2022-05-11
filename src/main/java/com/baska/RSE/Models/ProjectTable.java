@@ -1,17 +1,15 @@
 package com.baska.RSE.Models;
 
-import lombok.AllArgsConstructor;
+import com.baska.RSE.DAO.TableComparator;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.Instant;
 import java.util.Set;
+import java.util.TreeSet;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "projects_table")
 public class ProjectTable {
@@ -50,4 +48,65 @@ public class ProjectTable {
     )
     private Set<TableColumn> columns;
 
+    public ProjectTable() {
+    }
+
+    public ProjectTable(String id, String name, Boolean enabled, Instant timestamp, Set<Role> roles, Set<TableColumn> columns) {
+        this.id = id;
+        this.name = name;
+        this.enabled = enabled;
+        this.timestamp = timestamp;
+        this.roles = roles;
+        this.columns = columns;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Instant getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Instant timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public Set<TableColumn> getColumns() {
+        Set<TableColumn> sorted = new TreeSet<>(new TableComparator());
+        sorted.addAll(columns);
+        return sorted;
+    }
+
+    public void setColumns(Set<TableColumn> columns) {
+        this.columns = columns;
+    }
 }

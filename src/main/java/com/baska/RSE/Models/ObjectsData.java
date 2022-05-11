@@ -34,27 +34,11 @@ public class ObjectsData {
 
     @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
     @JoinTable(
-            name = "numbers_table",
-            joinColumns = @JoinColumn(name = "objects_id"),
-            inverseJoinColumns = @JoinColumn(name = "numbers_id")
-    )
-    private List<TableColumnAndNumberTable> numbers;
-
-    @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
-    @JoinTable(
-            name = "strings_table",
+            name = "values_table",
             joinColumns = @JoinColumn(name = "objects_id"),
             inverseJoinColumns = @JoinColumn(name = "strings_id")
     )
-    private List<TableColumnAndStringTable> strings;
-
-    @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
-    @JoinTable(
-            name = "booleans_table",
-            joinColumns = @JoinColumn(name = "objects_id"),
-            inverseJoinColumns = @JoinColumn(name = "booleans_id")
-    )
-    private List<TableColumnAndBoolean> booleans;
+    private List<TableValues> numbers;
 
 
 

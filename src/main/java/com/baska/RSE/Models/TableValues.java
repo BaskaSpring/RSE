@@ -7,19 +7,19 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Table(name = "enum_types")
-public class EnumTypes {
+@Table(name = "table_value")
+public class TableValues {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "name")
-    private String Name;
+    private String value;
+
+
 
 }

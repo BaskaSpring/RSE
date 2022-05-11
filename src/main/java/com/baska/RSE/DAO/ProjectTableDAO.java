@@ -31,7 +31,6 @@ public class ProjectTableDAO {
         return response;
     }
 
-
     public ProjectTable newProjectTable(ProjectTablePayload projectTablePayload){
         Optional<ProjectTable> projectTable = projectTableRepository.findByName(projectTablePayload.getName());
         if (projectTable.isPresent()){
@@ -56,6 +55,5 @@ public class ProjectTableDAO {
             return false;
         return projectTableRepository.findById(id).isPresent();
     }
-
 
 }

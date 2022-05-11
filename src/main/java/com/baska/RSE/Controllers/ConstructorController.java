@@ -1,13 +1,12 @@
 package com.baska.RSE.Controllers;
 
+import com.baska.RSE.DAO.EnumValuesDAO;
 import com.baska.RSE.DAO.ProjectTableDAO;
 import com.baska.RSE.DAO.RoleDAO;
 import com.baska.RSE.DAO.TableColumnDAO;
-import com.baska.RSE.Models.ProjectTable;
-import com.baska.RSE.Models.Role;
-import com.baska.RSE.Models.TableColumn;
-import com.baska.RSE.Models.Type;
+import com.baska.RSE.Models.*;
 import com.baska.RSE.Payload.Constructor.ColumnsPayload;
+import com.baska.RSE.Payload.Constructor.EnumPayload;
 import com.baska.RSE.Payload.Constructor.ProjectTablePayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,9 +15,12 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Controller
@@ -34,6 +36,173 @@ public class ConstructorController {
     @Autowired
     TableColumnDAO tableColumnDAO;
 
+    @Autowired
+    EnumValuesDAO enumValuesDAO;
+
+    @PostMapping("/columns/{id}/editEnum/{columnId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String postEditEnum(@PathVariable("id") String id,
+                               @PathVariable("columnId") Long columnId,
+                               @ModelAttribute("enumPayload") @Valid EnumPayload enumPayload,
+                               BindingResult bindingResult,
+                               Model model) {
+        ProjectTable projectTable = projectTableDAO.getProjectTableById(id);
+        if (projectTable != null) {
+            TableColumn tableColumn = tableColumnDAO.getById(columnId);
+            if (bindingResult.hasErrors())
+            {
+//                "dasd";
+            }
+            if (tableColumn != null) {
+                EnumValues enumValues = new EnumValues();
+                enumValues.setValue(enumPayload.getName());
+                EnumValues resp = enumValuesDAO.save(enumValues);
+                Set<EnumValues> enumValuesSet = tableColumn.getEnumTypes();
+                enumValuesSet.add(resp);
+                tableColumn.setEnumTypes(enumValuesSet);
+                TableColumn response = tableColumnDAO.save(tableColumn);
+                model.addAttribute("enumPayload", new EnumPayload());
+                model.addAttribute("projectTable", projectTable);
+                model.addAttribute("column", response);
+                return "constructor/editEnum";
+            }
+            return "redirect:/constructor/index";
+        }
+        return "redirect:/constructor/index";
+    }
+
+
+    @GetMapping("/columns/{id}/editEnum/{columnId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String getEditEnum(@PathVariable("id") String id,
+                            @PathVariable("columnId") Long columnId,
+                            Model model) {
+        ProjectTable projectTable = projectTableDAO.getProjectTableById(id);
+        if (projectTable!=null) {
+            TableColumn tableColumn = tableColumnDAO.getById(columnId);
+            if (tableColumn != null) {
+                model.addAttribute("enumPayload",new EnumPayload());
+                model.addAttribute("projectTable",projectTable);
+                model.addAttribute("column",tableColumn);
+                return "constructor/editEnum";
+            }
+            return "redirect:/constructor/index";
+        }
+        return "redirect:/constructor/index";
+    }
+
+
+    @GetMapping("/columns/{id}/edit/{columnId}/up")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String getEditUp(@PathVariable("id") String id,
+                                @PathVariable("columnId") Long columnId,
+                                Model model) {
+        ProjectTable projectTable = projectTableDAO.getProjectTableById(id);
+        if (projectTable!=null) {
+            boolean finded = false;
+            TableColumn tableColumn = tableColumnDAO.getById(columnId);
+            if (tableColumn != null) {
+                if (tableColumn.getPriority() > 1) {
+                    finded = true;
+                    Set<TableColumn> columnSet = projectTable.getColumns();
+                    TableColumn swap = new TableColumn();
+                    for (TableColumn el : columnSet) {
+                        if (el.getPriority() + 1 == tableColumn.getPriority()) {
+                            swap = el;
+                            break;
+                        }
+                    }
+                    int prior = swap.getPriority();
+                    swap.setPriority(tableColumn.getPriority());
+                    tableColumn.setPriority(prior);
+                    tableColumnDAO.save(swap);
+                    tableColumnDAO.save(tableColumn);
+                } else{
+                    return "redirect:/constructor/columns/" + projectTable.getId();
+                }
+            }
+            if (finded) {
+                ProjectTable resp = projectTableDAO.save(projectTable);
+                return "redirect:/constructor/columns/" + resp.getId();
+            }
+            return "redirect:/constructor/index";
+        }
+        return "redirect:/constructor/index";
+    }
+
+    @GetMapping("/columns/{id}/edit/{columnId}/down")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String getEditDown(@PathVariable("id") String id,
+                              @PathVariable("columnId") Long columnId,
+                              Model model){
+        ProjectTable projectTable = projectTableDAO.getProjectTableById(id);
+        if (projectTable!=null) {
+            boolean finded = false;
+            TableColumn tableColumn = tableColumnDAO.getById(columnId);
+            if (tableColumn != null) {
+                if (tableColumn.getPriority() < projectTable.getColumns().size()) {
+                    finded = true;
+                    Set<TableColumn> columnSet = projectTable.getColumns();
+                    TableColumn swap = new TableColumn();
+                    for (TableColumn el : columnSet) {
+                        if (el.getPriority() == tableColumn.getPriority()+1) {
+                            swap = el;
+                            break;
+                        }
+                    }
+                    int prior = swap.getPriority();
+                    swap.setPriority(tableColumn.getPriority());
+                    tableColumn.setPriority(prior);
+                    tableColumnDAO.save(swap);
+                    tableColumnDAO.save(tableColumn);
+                } else {
+                    return "redirect:/constructor/columns/" + projectTable.getId();
+                }
+            }
+            if (finded) {
+                ProjectTable resp = projectTableDAO.save(projectTable);
+                return "redirect:/constructor/columns/" + resp.getId();
+            }
+            return "redirect:/constructor/index";
+        }
+        return "redirect:/constructor/index";
+    }
+
+
+
+    @GetMapping("/columns/{id}/edit/{columnId}/delete")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String getEditDelete(@PathVariable("id") String id,
+                              @PathVariable("columnId") Long columnId,
+                              Model model){
+        ProjectTable projectTable = projectTableDAO.getProjectTableById(id);
+        if (projectTable!=null) {
+            boolean finded = false;
+            TableColumn tableColumn = tableColumnDAO.getById(columnId);
+            if (tableColumn != null) {
+                finded = true;
+                int priority = tableColumn.getPriority();
+                Set<TableColumn> tableColumnSet = projectTable.getColumns();
+                tableColumnSet.remove(tableColumn);
+                Set<TableColumn> newTable = new HashSet<>();
+                for (TableColumn el : tableColumnSet) {
+                    if (el.getPriority()>priority){
+                        el.setPriority(el.getPriority()-1);
+                    }
+                    newTable.add(tableColumnDAO.save(el));
+                }
+                projectTable.setColumns(newTable);
+            }
+            if (finded) {
+                ProjectTable resp = projectTableDAO.save(projectTable);
+                tableColumnDAO.delete(tableColumn);
+                return "redirect:/constructor/columns/" + resp.getId();
+            }
+            return "redirect:/constructor/index";
+        }
+        return "redirect:/constructor/index";
+    }
+
 
     @GetMapping("/columns/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -47,6 +216,7 @@ public class ConstructorController {
         types.add(Type.ENUM);
         types.add(Type.NUMBER);
         types.add(Type.STRING);
+        types.add(Type.DATE);
         model.addAttribute("types",types);
         model.addAttribute("columnsPayload",new ColumnsPayload());
         model.addAttribute("projectTable",projectTable);
@@ -75,17 +245,16 @@ public class ConstructorController {
         if (projectTable!=null) {
             if (bindingResult.hasErrors())
                 return "constructor/columns"+projectTable.getId();
-            List<Type> types = new ArrayList<>();
-            types.add(Type.BOOLEAN);
-            types.add(Type.ENUM);
-            types.add(Type.NUMBER);
-            types.add(Type.STRING);
             TableColumn tableColumn = new TableColumn();
             tableColumn.setName(columnsPayload.getName());
             boolean finded = false;
             if (Type.BOOLEAN.toString().equals(columnsPayload.getType())) {
                 finded = true;
                 tableColumn.setType(Type.BOOLEAN);
+            }
+            if (Type.DATE.toString().equals(columnsPayload.getType())) {
+                finded = true;
+                tableColumn.setType(Type.DATE);
             }
             if (Type.ENUM.toString().equals(columnsPayload.getType())) {
                 finded = true;
@@ -100,12 +269,16 @@ public class ConstructorController {
                 tableColumn.setType(Type.NUMBER);
             }
             if (finded){
+                int priority = 1;
+                if (!projectTable.getColumns().isEmpty()){
+                    priority = projectTable.getColumns().size()+1;
+                }
+                tableColumn.setPriority(priority);
                 TableColumn newTableColumn = tableColumnDAO.save(tableColumn);
-                projectTable.getColumns().add(newTableColumn);
+                Set<TableColumn> tableColumnSet = projectTable.getColumns();
+                tableColumnSet.add(newTableColumn);
+                projectTable.setColumns(tableColumnSet);
                 ProjectTable resp = projectTableDAO.save(projectTable);
-                model.addAttribute("types",types);
-                model.addAttribute("projectTable",resp);
-
                 return "redirect:/constructor/columns/" + resp.getId();
             }
             return "redirect:/constructor/index";
