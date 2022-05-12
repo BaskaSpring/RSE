@@ -12,5 +12,5 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MapPayload {
-    Map<TableColumn,String> object =  new HashMap<>();
+    Map<TableColumn,String> objects =  new HashMap<>();
 }

@@ -10,12 +10,13 @@ import javax.persistence.*;
 import java.time.Instant;
 import java.util.List;
 
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "objects_data")
-public class ObjectsData {
+@Table(name = "objects")
+public class ObjectData {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -26,20 +27,20 @@ public class ObjectsData {
     @Column(name =  "id", columnDefinition = "VARCHAR(50)",updatable = false,nullable = false)
     private String id;
 
-    private String objectId;
+    private boolean enabled;
+
+    private String projectTableId;
 
     private String userId;
 
-    private Instant timestamp = Instant.now();
+    private Instant timestamp =Instant.now();
 
-    @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
+    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.REFRESH)
     @JoinTable(
             name = "values_table",
             joinColumns = @JoinColumn(name = "objects_id"),
             inverseJoinColumns = @JoinColumn(name = "strings_id")
     )
-    private List<TableValues> numbers;
-
-
+    private List<TableValues> values;
 
 }

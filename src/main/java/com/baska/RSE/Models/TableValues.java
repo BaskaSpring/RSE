@@ -20,6 +20,4 @@ public class TableValues {
 
     private String value;
 
-
-
 }

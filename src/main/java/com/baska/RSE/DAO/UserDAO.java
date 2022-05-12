@@ -22,4 +22,9 @@ public class UserDAO {
         User user = userRepository.findByUserName(userName);
         return user.getRoles();
     }
+
+    public User getUserByUserName(String userName){
+        User user = userRepository.findByUserName(userName);
+        return user;
+    }
 }

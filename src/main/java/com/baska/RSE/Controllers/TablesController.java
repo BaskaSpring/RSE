@@ -1,12 +1,12 @@
 package com.baska.RSE.Controllers;
 
 
+import com.baska.RSE.DAO.ObjectsDAO;
+import com.baska.RSE.DAO.PermissionAndAccessDAO;
 import com.baska.RSE.DAO.ProjectTableDAO;
 import com.baska.RSE.DAO.UserDAO;
-import com.baska.RSE.Models.ProjectTable;
-import com.baska.RSE.Models.Role;
-import com.baska.RSE.Models.TableColumn;
-import com.baska.RSE.Models.Type;
+import com.baska.RSE.Models.*;
+import com.baska.RSE.Models.ObjectData;
 import com.baska.RSE.Payload.Tables.MapPayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,126 +26,91 @@ public class TablesController {
     @Autowired
     ProjectTableDAO projectTableDAO;
 
+    @Autowired
+    ObjectsDAO objectsDAO;
 
-    @PostMapping("/{id}/new")
-    public String postNew(@ModelAttribute("object") MapPayload object, @PathVariable String id, Principal principal, Model model) {
-        if (!projectTableDAO.isPresent(id)){
-            return "redirect:/tables/index";
-        }
-        ProjectTable projectTable = projectTableDAO.getProjectTableById(id);
-        Set<Role> rolesProject = projectTable.getRoles();
-        Set<Role> rolesUser = userDAO.getRoles(principal.getName());
-        boolean havePermission = false;
-        for (Role elproj :rolesProject){
-            for (Role eluser: rolesUser){
-                if (elproj == eluser) {
-                    havePermission = true;
-                    break;
-                }
-            }
-            if (havePermission){
-                break;
-            }
-        }
+    @Autowired
+    PermissionAndAccessDAO permissionAndAccessDAO;
+
+    @GetMapping("/{projectTableId}/{idObject}")
+    public String getEditObject(@PathVariable String projectTableId,@PathVariable String idObject, Principal principal,Model model) {
+        boolean havePermission = permissionAndAccessDAO.checkObjectsUser(idObject,principal.getName());
         if (!havePermission){
             return "redirect:/tables/index";
         }
-        HashMap<Long,List<String>> enumValues = new HashMap<>();
-        Set<TableColumn> tableColumns = projectTable.getColumns();
-        tableColumns.forEach(x->System.out.println(x.getName()));
-        for (TableColumn el: tableColumns) {
-            if (el.getType()== Type.ENUM){
-                Long key = el.getId();
-                List<String> values = new ArrayList<>();
-                el.getEnumTypes().forEach(x->values.add(x.getValue()));
-                enumValues.put(key,values);
-            }
-        }
-        MapPayload mapPayload = new MapPayload();
-        model.addAttribute("object",mapPayload.getObject());
-        model.addAttribute("enumValues",enumValues);
-        model.addAttribute("columns",tableColumns);
-        model.addAttribute("projectTable",projectTable);
-        return "tables/new";
-    }
-
-    @GetMapping("/{id}/new")
-    public String getNew(@PathVariable String id, Principal principal,Model model) {
-        if (!projectTableDAO.isPresent(id)){
-            return "redirect:/tables/index";
-        }
-        ProjectTable projectTable = projectTableDAO.getProjectTableById(id);
-        Set<Role> rolesProject = projectTable.getRoles();
-        Set<Role> rolesUser = userDAO.getRoles(principal.getName());
-        boolean havePermission = false;
-        for (Role elproj :rolesProject){
-            for (Role eluser: rolesUser){
-                if (elproj == eluser) {
-                    havePermission = true;
-                    break;
-                }
-            }
-            if (havePermission){
-                break;
-            }
-        }
-        if (!havePermission){
-            return "redirect:/tables/index";
-        }
+        User user = userDAO.getUserByUserName(principal.getName());
+        ObjectData objectsData = objectsDAO.getObjectsDataOrCreateNew(idObject,user,projectTableId);
+        ProjectTable projectTable = projectTableDAO.getProjectTableById(projectTableId);
         MapPayload mapPayload = new MapPayload();
         Map<TableColumn,String> columnStringMap = new HashMap<>();
-
         HashMap<Long,List<String>> enumValues = new HashMap<>();
         Set<TableColumn> tableColumns = projectTable.getColumns();
         tableColumns.forEach(x->System.out.println(x.getName()));
         for (TableColumn el: tableColumns) {
+            columnStringMap.put(el, "");
             if (el.getType()== Type.ENUM){
                 Long key = el.getId();
                 List<String> values = new ArrayList<>();
                 el.getEnumTypes().forEach(x->values.add(x.getValue()));
                 enumValues.put(key,values);
             }
-            columnStringMap.put(el, "");
         }
-        mapPayload.setObject(columnStringMap);
+        mapPayload.setObjects(columnStringMap);
+        model.addAttribute("objectsData",objectsData);
         model.addAttribute("mapPayload",mapPayload);
-        model.addAttribute("enumValues",enumValues);
         model.addAttribute("columns",tableColumns);
         model.addAttribute("projectTable",projectTable);
-        return "tables/new";
+        return "tables/editTable";
     }
 
+
+    @PostMapping("/{projectTableId}/{idObject}")
+    public String postNew(@ModelAttribute("object") MapPayload object,
+                          @PathVariable String projectTableId,
+                          @PathVariable String idObject,
+                          Principal principal,
+                          Model model) {
+        boolean havePermission = permissionAndAccessDAO.checkObjectsUser(idObject,principal.getName());
+        if (!havePermission){
+            return "redirect:/tables/index";
+        }
+        User user = userDAO.getUserByUserName(principal.getName());
+        ObjectData objectsData = objectsDAO.getObject(idObject);
+        if (objectsData==null){
+            return "redirect:/tables/index";
+        }
+        return "redirect:/tables/"+projectTableId+"/"+idObject;
+    }
+
+
+    @GetMapping("/{projectTableId}/new")
+    public String getNew(@PathVariable String projectTableId, Principal principal,Model model) {
+        boolean havePermission = permissionAndAccessDAO.checkProjectTableUser(projectTableId,principal.getName());
+        if (!havePermission){
+            return "redirect:/tables/index";
+        }
+        ProjectTable projectTable = projectTableDAO.getProjectTableById(projectTableId);
+        ObjectData objectData = objectsDAO.newObject(projectTable);
+        return "redirect:/tables/"+projectTable.getId()+"/"+ objectData.getId();
+    }
 
     @GetMapping("/index")
     public String getTables(Model model, Principal principal) {
         Set<Role> roles = userDAO.getRoles(principal.getName());
         Set<ProjectTable> projectTables = projectTableDAO.getProjectsByRoles(roles);
-
         model.addAttribute("tables",projectTables);
         return "tables/index";
     }
 
-    @GetMapping("/{id}")
-    public String getTables(@PathVariable String id, Principal principal,Model model) {
-        if (!projectTableDAO.isPresent(id)){
-            return "redirect:/tables/index";
-        }
-        ProjectTable projectTable = projectTableDAO.getProjectTableById(id);
-        Set<Role> rolesProject = projectTable.getRoles();
-        Set<Role> rolesUser = userDAO.getRoles(principal.getName());
-        boolean havePermission = false;
-        for (Role elproj :rolesProject){
-            for (Role eluser: rolesUser){
-                if (elproj==eluser){
-                    havePermission=true;
-                }
-            }
-        }
+    @GetMapping("/{projectTableId}")
+    public String getTables(@PathVariable String projectTableId, Principal principal,Model model) {
+        boolean havePermission = permissionAndAccessDAO.checkProjectTableUser(projectTableId,principal.getName());
         if (!havePermission){
             return "redirect:/tables/index";
         }
+        ProjectTable projectTable = projectTableDAO.getProjectTableById(projectTableId);
         model.addAttribute("object",projectTable);
-        return "tables/table";
+        return "tables/tables";
     }
 
 
