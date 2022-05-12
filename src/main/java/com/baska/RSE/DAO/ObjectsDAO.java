@@ -1,13 +1,16 @@
 package com.baska.RSE.DAO;
 
 
-import com.baska.RSE.Models.ObjectData;
-import com.baska.RSE.Models.ProjectTable;
-import com.baska.RSE.Models.User;
+import com.baska.RSE.Models.*;
+import com.baska.RSE.Payload.Tables.MapPayload;
 import com.baska.RSE.Repositories.ObjectsDataRepository;
+import com.baska.RSE.Repositories.TableValuesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -15,6 +18,8 @@ public class ObjectsDAO {
     @Autowired
     ObjectsDataRepository objectsDataRepository;
 
+    @Autowired
+    TableValuesRepository tableValuesRepository;
 
     public ObjectData newObject(ProjectTable projectTable){
         ObjectData objectData = new ObjectData();
@@ -39,5 +44,24 @@ public class ObjectsDAO {
              return objectsDataRepository.save(newObjectData);
          }
 
+    }
+
+    public ObjectData addNewRow(MapPayload object, ObjectData objectsData) {
+        TableValues tableValues = new TableValues();
+        tableValues.setRow(objectsData.getValues().size()+1);
+        Map<Long,String> newRowValues = new HashMap<>();
+        for (TableColumn column : object.getObjects().keySet()){
+            String s =object.getObjects().get(column);
+            if (s==null) {
+                s = "false";
+            }
+            newRowValues.put(column.getId(),s);
+        }
+        tableValues.setRowValues(newRowValues);
+        TableValues newRow = tableValuesRepository.save(tableValues);
+        List<TableValues> tableValuesList = objectsData.getValues();
+        tableValuesList.add(newRow);
+        objectsData.setValues(tableValuesList);
+        return objectsDataRepository.save(objectsData);
     }
 }

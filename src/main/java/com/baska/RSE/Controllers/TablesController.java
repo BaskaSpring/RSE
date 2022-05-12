@@ -32,6 +32,25 @@ public class TablesController {
     @Autowired
     PermissionAndAccessDAO permissionAndAccessDAO;
 
+
+    @PostMapping("/{projectTableId}/{idObject}")
+    public String postNew(@ModelAttribute("object") MapPayload object,
+                          @PathVariable String projectTableId,
+                          @PathVariable String idObject,
+                          Principal principal,
+                          Model model) {
+        boolean havePermission = permissionAndAccessDAO.checkObjectsUser(idObject,principal.getName());
+        if (!havePermission){
+            return "redirect:/tables/index";
+        }
+        ObjectData objectsData = objectsDAO.getObject(idObject);
+        if (objectsData==null){
+            return "redirect:/tables/index";
+        }
+        objectsDAO.addNewRow(object,objectsData);
+        return "redirect:/tables/"+projectTableId+"/"+idObject;
+    }
+
     @GetMapping("/{projectTableId}/{idObject}")
     public String getEditObject(@PathVariable String projectTableId,@PathVariable String idObject, Principal principal,Model model) {
         boolean havePermission = permissionAndAccessDAO.checkObjectsUser(idObject,principal.getName());
@@ -55,31 +74,14 @@ public class TablesController {
                 enumValues.put(key,values);
             }
         }
+        List<Map<Long,String>> tableValues = new ArrayList<>();
+
         mapPayload.setObjects(columnStringMap);
         model.addAttribute("objectsData",objectsData);
         model.addAttribute("mapPayload",mapPayload);
         model.addAttribute("columns",tableColumns);
         model.addAttribute("projectTable",projectTable);
         return "tables/editTable";
-    }
-
-
-    @PostMapping("/{projectTableId}/{idObject}")
-    public String postNew(@ModelAttribute("object") MapPayload object,
-                          @PathVariable String projectTableId,
-                          @PathVariable String idObject,
-                          Principal principal,
-                          Model model) {
-        boolean havePermission = permissionAndAccessDAO.checkObjectsUser(idObject,principal.getName());
-        if (!havePermission){
-            return "redirect:/tables/index";
-        }
-        User user = userDAO.getUserByUserName(principal.getName());
-        ObjectData objectsData = objectsDAO.getObject(idObject);
-        if (objectsData==null){
-            return "redirect:/tables/index";
-        }
-        return "redirect:/tables/"+projectTableId+"/"+idObject;
     }
 
 

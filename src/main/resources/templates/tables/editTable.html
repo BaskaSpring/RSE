@@ -16,7 +16,6 @@
         <thead>
         <tr class="headings">
             <th th:each="column: ${columns}" class="column-title" th:text="${column.name}"/>
-
             <th>Действие</th>
         </tr>
         </thead>
@@ -49,7 +48,7 @@
                                 </div>
                                 <div th:if="${myObject.key.type.toString().equals('BOOLEAN')}">
                                     <td><input th:field="*{objects[__${myObject.key.id}__]}" class="form-check-input"
-                                               type="checkbox" value="" id="flexCheckDefault">
+                                               type="checkbox" value="true" id="flexCheckDefault">
                                     </td>
                                 </div>
                                 <div th:if="${myObject.key.type.toString().equals('ENUM')}">
