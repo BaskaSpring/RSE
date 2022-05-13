@@ -21,10 +21,10 @@ public class ObjectsDAO {
     @Autowired
     TableValuesRepository tableValuesRepository;
 
-    public ObjectData newObject(ProjectTable projectTable){
+    public ObjectData newObject(CustomTable customTable){
         ObjectData objectData = new ObjectData();
         objectData.setEnabled(true);
-        objectData.setProjectTableId(projectTable.getId());
+        objectData.setProjectTableId(customTable.getId());
         return objectsDataRepository.save(objectData);
     }
 
@@ -50,7 +50,7 @@ public class ObjectsDAO {
         TableValues tableValues = new TableValues();
         tableValues.setRow(objectsData.getValues().size()+1);
         Map<Long,String> newRowValues = new HashMap<>();
-        for (TableColumn column : object.getObjects().keySet()){
+        for (Types column : object.getObjects().keySet()){
             String s =object.getObjects().get(column);
             if (s==null) {
                 s = "false";

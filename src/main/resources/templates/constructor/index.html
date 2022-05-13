@@ -10,7 +10,12 @@
 <header th:insert="header :: header"></header>
 
 <div class="container mt-5 pt-5">
-    <a class="btn btn-primary" href="/constructor/createProjectTable" role="button">Создать</a>
+    <div>
+        <a href="/constructor/createProjectTable">Создать новую таблицу</a>
+    </div>
+    <div class="dasd mt-3 pt-3">
+        <a href="/constructor/tableList">Редактировать существующую таблицу</a>
+    </div>
 </div>
 
 <script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>

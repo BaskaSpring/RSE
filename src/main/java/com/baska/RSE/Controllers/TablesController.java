@@ -3,7 +3,7 @@ package com.baska.RSE.Controllers;
 
 import com.baska.RSE.DAO.ObjectsDAO;
 import com.baska.RSE.DAO.PermissionAndAccessDAO;
-import com.baska.RSE.DAO.ProjectTableDAO;
+import com.baska.RSE.DAO.CustomTableDAO;
 import com.baska.RSE.DAO.UserDAO;
 import com.baska.RSE.Models.*;
 import com.baska.RSE.Models.ObjectData;
@@ -24,7 +24,7 @@ public class TablesController {
     UserDAO userDAO;
 
     @Autowired
-    ProjectTableDAO projectTableDAO;
+    CustomTableDAO customTableDAO;
 
     @Autowired
     ObjectsDAO objectsDAO;
@@ -51,38 +51,41 @@ public class TablesController {
         return "redirect:/tables/"+projectTableId+"/"+idObject;
     }
 
-    @GetMapping("/{projectTableId}/{idObject}")
-    public String getEditObject(@PathVariable String projectTableId,@PathVariable String idObject, Principal principal,Model model) {
-        boolean havePermission = permissionAndAccessDAO.checkObjectsUser(idObject,principal.getName());
-        if (!havePermission){
-            return "redirect:/tables/index";
-        }
-        User user = userDAO.getUserByUserName(principal.getName());
-        ObjectData objectsData = objectsDAO.getObjectsDataOrCreateNew(idObject,user,projectTableId);
-        ProjectTable projectTable = projectTableDAO.getProjectTableById(projectTableId);
-        MapPayload mapPayload = new MapPayload();
-        Map<TableColumn,String> columnStringMap = new HashMap<>();
-        HashMap<Long,List<String>> enumValues = new HashMap<>();
-        Set<TableColumn> tableColumns = projectTable.getColumns();
-        tableColumns.forEach(x->System.out.println(x.getName()));
-        for (TableColumn el: tableColumns) {
-            columnStringMap.put(el, "");
-            if (el.getType()== Type.ENUM){
-                Long key = el.getId();
-                List<String> values = new ArrayList<>();
-                el.getEnumTypes().forEach(x->values.add(x.getValue()));
-                enumValues.put(key,values);
-            }
-        }
-        List<Map<Long,String>> tableValues = new ArrayList<>();
-
-        mapPayload.setObjects(columnStringMap);
-        model.addAttribute("objectsData",objectsData);
-        model.addAttribute("mapPayload",mapPayload);
-        model.addAttribute("columns",tableColumns);
-        model.addAttribute("projectTable",projectTable);
-        return "tables/editTable";
-    }
+//    @GetMapping("/{projectTableId}/{idObject}")
+//    public String getEditObject(@PathVariable String projectTableId,@PathVariable String idObject, Principal principal,Model model) {
+//        boolean havePermission = permissionAndAccessDAO.checkObjectsUser(idObject,principal.getName());
+//        if (!havePermission){
+//            return "redirect:/tables/index";
+//        }
+//        User user = userDAO.getUserByUserName(principal.getName());
+//        ObjectData objectsData = objectsDAO.getObjectsDataOrCreateNew(idObject,user,projectTableId);
+//        CustomTable customTable = customTableDAO.getProjectTableById(projectTableId);
+//        MapPayload mapPayload = new MapPayload();
+//        Map<Types,String> columnStringMap = new HashMap<>();
+//        HashMap<Long,List<String>> enumValues = new HashMap<>();
+//        Set<Types> tableColumns = customTable.getColumns();
+//        for (Types el: tableColumns) {
+//            columnStringMap.put(el, "");
+//            if (el.getEType()== EType.ENUM){
+//                Long key = el.getId();
+//                List<String> values = new ArrayList<>();
+//                el.getEnumTypes().forEach(x->values.add(x.getValue()));
+//                enumValues.put(key,values);
+//            }
+//        }
+//        List<Map<Long,String>> tableValues = new ArrayList<>();
+//        for (TableValues value:objectsData.getValues()){
+//            Map<Long,String> rowValue = value.getRowValues();
+//            tableValues.add(rowValue);
+//        }
+//        mapPayload.setObjects(columnStringMap);
+//        model.addAttribute("tableValues",tableValues);
+//        model.addAttribute("objectsData",objectsData);
+//        model.addAttribute("mapPayload",mapPayload);
+//        model.addAttribute("columns",tableColumns);
+//        model.addAttribute("projectTable", customTable);
+//        return "tables/editTable";
+//    }
 
 
     @GetMapping("/{projectTableId}/new")
@@ -91,16 +94,16 @@ public class TablesController {
         if (!havePermission){
             return "redirect:/tables/index";
         }
-        ProjectTable projectTable = projectTableDAO.getProjectTableById(projectTableId);
-        ObjectData objectData = objectsDAO.newObject(projectTable);
-        return "redirect:/tables/"+projectTable.getId()+"/"+ objectData.getId();
+        CustomTable customTable = customTableDAO.getCustomTableById(projectTableId);
+        ObjectData objectData = objectsDAO.newObject(customTable);
+        return "redirect:/tables/"+ customTable.getId()+"/"+ objectData.getId();
     }
 
     @GetMapping("/index")
     public String getTables(Model model, Principal principal) {
         Set<Role> roles = userDAO.getRoles(principal.getName());
-        Set<ProjectTable> projectTables = projectTableDAO.getProjectsByRoles(roles);
-        model.addAttribute("tables",projectTables);
+        Set<CustomTable> customTables = customTableDAO.getProjectsByRoles(roles);
+        model.addAttribute("tables", customTables);
         return "tables/index";
     }
 
@@ -110,8 +113,8 @@ public class TablesController {
         if (!havePermission){
             return "redirect:/tables/index";
         }
-        ProjectTable projectTable = projectTableDAO.getProjectTableById(projectTableId);
-        model.addAttribute("object",projectTable);
+        CustomTable customTable = customTableDAO.getCustomTableById(projectTableId);
+        model.addAttribute("object", customTable);
         return "tables/tables";
     }
 

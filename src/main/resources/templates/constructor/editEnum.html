@@ -18,7 +18,7 @@
         </div>
     </div>
     <form name='enumForm' th:object="${enumPayload}"
-          th:action="@{/constructor/columns/{id}/editEnum/{columnId}(id=${projectTable.getId()},columnId=${column.getId()})}" method="post">
+          th:action="@{/constructor/columns/{id}/editEnum/{columnId}(id=${customTable.getId()},columnId=${column.getId()})}" method="post">
         <div class="form-group">
             <div class="col-lg-6 col-lg-offset-2">
                 <div class="input-group mb-3">
@@ -31,7 +31,7 @@
             </div>
         </div>
     </form>
-    <a class="btn btn-primary" th:href="@{/constructor/columns/{id}(id=${projectTable.getId()})}" role="button">Колонки</a>
+    <a class="btn btn-primary" th:href="@{/constructor/columns/{id}(id=${customTable.getId()})}" role="button">Колонки</a>
 </div>
 
 <script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>

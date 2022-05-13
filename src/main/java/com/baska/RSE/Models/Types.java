@@ -6,14 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "table_columns")
-public class TableColumn {
+@Table(name = "table_types")
+public class Types {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,15 +26,14 @@ public class TableColumn {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
-    private Type type;
+    private EType EType;
 
-
-    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.REFRESH)
+    @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.REFRESH)
     @JoinTable(
             name = "value_enum",
-            joinColumns = @JoinColumn(name = "project_id"),
+            joinColumns = @JoinColumn(name = "types_id"),
             inverseJoinColumns = @JoinColumn(name = "enum_id")
     )
-    private Set<EnumValues> enumTypes;
+    private EnumValues enumValue;
 
 }

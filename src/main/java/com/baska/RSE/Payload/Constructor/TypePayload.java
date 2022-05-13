@@ -11,11 +11,11 @@ import javax.validation.constraints.Size;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ColumnsPayload {
+public class TypePayload {
 
     @NotBlank(message = "длина имени не может быть пустым")
     @NotEmpty(message = "длина имени не может быть пустым")
-    @Size(min=2,max=15,message = "длина имени не может быть меньше 2 и больше 15 символов")
+    @Size(min=3,max=15,message = "длина имени не может быть меньше 3 и больше 15 символов")
     public String name;
 
     @NotBlank(message = "длина типа не может быть пустым")

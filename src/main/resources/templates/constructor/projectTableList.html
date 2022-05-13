@@ -10,13 +10,9 @@
 <header th:insert="header :: header"></header>
 
 <div class="container mt-5 pt-5">
-    <form th:action="@{/constructor/createProjectTable}" method="post" th:object="${customTablePayload}">
-        <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="Введите имя таблицы" th:field="*{name}" aria-describedby="button-addon2">
-            <button class="btn btn-outline-secondary" value="create" type="submit" id="button-addon2">Создать</button>
-        </div>
-        <div style="color:red" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name Error</div>
-    </form>
+    <p th:each="table : ${tableList}">
+        <a th:href="@{/constructor/edit/{id}(id=${table.id})}" th:text="${table.name}">meene</a>
+    </p>
 </div>
 
 <script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>

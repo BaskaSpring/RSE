@@ -1,6 +1,6 @@
 package com.baska.RSE.DAO;
 
-import com.baska.RSE.Models.TableColumn;
+import com.baska.RSE.Models.Types;
 import com.baska.RSE.Repositories.TableColumnRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,17 +13,17 @@ public class TableColumnDAO {
     @Autowired
     TableColumnRepository tableColumnRepository;
 
-    public TableColumn save(TableColumn tableColumn){
-        return tableColumnRepository.save(tableColumn);
+    public Types save(Types tableValue){
+        return tableColumnRepository.save(tableValue);
     }
 
 
-    public TableColumn getById(Long id){
-        Optional<TableColumn> tableColumn = tableColumnRepository.findById(id);
+    public Types getById(Long id){
+        Optional<Types> tableColumn = tableColumnRepository.findById(id);
         return tableColumn.orElse(null);
     }
 
-    public void delete(TableColumn tableColumn){
-        tableColumnRepository.delete(tableColumn);
+    public void delete(Types tableValue){
+        tableColumnRepository.delete(tableValue);
     }
 }

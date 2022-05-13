@@ -11,8 +11,8 @@ import java.util.TreeSet;
 
 @Data
 @Entity
-@Table(name = "projects_table")
-public class ProjectTable {
+@Table(name = "custom_table")
+public class CustomTable {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -34,30 +34,39 @@ public class ProjectTable {
 
     @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.REFRESH)
     @JoinTable(
-            name = "projects_table_roles",
-            joinColumns = @JoinColumn(name = "projects_id"),
+            name = "custom_table_roles",
+            joinColumns = @JoinColumn(name = "table_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles;
 
     @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.REFRESH)
     @JoinTable(
-            name = "project_tables_colums",
-            joinColumns = @JoinColumn(name = "project_id"),
+            name = "custom_tables_colums",
+            joinColumns = @JoinColumn(name = "table_id"),
             inverseJoinColumns = @JoinColumn(name = "column_id")
     )
-    private Set<TableColumn> columns;
+    private Set<Types> columns;
 
-    public ProjectTable() {
+    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.REFRESH)
+    @JoinTable(
+            name = "custom_tables_props",
+            joinColumns = @JoinColumn(name = "table_id"),
+            inverseJoinColumns = @JoinColumn(name = "props_id")
+    )
+    private Set<Types> props;
+
+    public CustomTable() {
     }
 
-    public ProjectTable(String id, String name, Boolean enabled, Instant timestamp, Set<Role> roles, Set<TableColumn> columns) {
+    public CustomTable(String id, String name, Boolean enabled, Instant timestamp, Set<Role> roles, Set<Types> columns, Set<Types> props) {
         this.id = id;
         this.name = name;
         this.enabled = enabled;
         this.timestamp = timestamp;
         this.roles = roles;
         this.columns = columns;
+        this.props = props;
     }
 
     public String getId() {
@@ -100,13 +109,23 @@ public class ProjectTable {
         this.roles = roles;
     }
 
-    public Set<TableColumn> getColumns() {
-        Set<TableColumn> sorted = new TreeSet<>(new TableComparator());
+    public Set<Types> getColumns() {
+        Set<Types> sorted = new TreeSet<>(new TableComparator());
         sorted.addAll(columns);
         return sorted;
     }
 
-    public void setColumns(Set<TableColumn> columns) {
+    public void setColumns(Set<Types> columns) {
         this.columns = columns;
+    }
+
+    public Set<Types> getProps() {
+        Set<Types> sorted = new TreeSet<>(new TableComparator());
+        sorted.addAll(props);
+        return sorted;
+    }
+
+    public void setProps(Set<Types> props) {
+        this.props = props;
     }
 }

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="utf-8">
+    <title>Конструктор</title>
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/5.1.3/css/bootstrap.min.css} "/>
+</head>
+<body>
+
+<header th:insert="header :: header"></header>
+
+<div class="container mt-5 pt-5">
+    Выбранные реквизиты
+    <div class="form-group">
+        <div class="col-lg-10">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Приоритет</th>
+                    <th>Изменение приоритета</th>
+                    <th>Имя реквизита</th>
+                    <th>Тип реквизита</th>
+                    <th>Редактировать</th>
+                    <th>Удалить</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="prop : ${table.getProps()}">
+                    <td th:text="${prop.priority}">priority</td>
+                    <td>
+                        <a th:href="@{/constructor/edit/{tableId}/editProps/{propId}/up(tableId=${table.id},propId=${prop.id})}"
+                           class="btn btn-primary">Верх</a>
+                        <a th:href="@{/constructor/edit/{tableId}/editProps/{propId}/down(tableId=${table.id},propId=${prop.id})}"
+                           class="btn btn-primary">Вниз</a>
+                    </td>
+                    <td th:text="${prop.name}">name</td>
+                    <td th:text="${prop.EType.value}">EType</td>
+                    <div th:if="${prop.EType.toString().equals('ENUM')}">
+<!--                        <td><a th:href="@{/constructor/edit/{tableId}/editProps/{propId}/editEnum/(tableId=${table.id},propId=${prop.id})}">Редактировать</a></td>-->
+                    </div>
+                    <div th:if="${!prop.EType.toString().equals('ENUM')}">
+                        <td>Редактировать</td>
+                    </div>
+                    <td>
+                        <a th:href="@{/constructor/edit/{tableId}/editProps/{propId}/delete(tableId=${table.id},propId=${prop.id})}"
+                           class="btn btn-primary">Удалить
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <form th:object="${typePayload}"
+          th:action="@{/constructor/edit/{tableId}/editProps/addProp(tableId=${table.getId()})}" method="post">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="inputGroup-sizing-default">Имя колонки</span>
+                        <input type="text" th:field="*{name}" class="form-control" aria-label="Sizing example input"
+                               aria-describedby="inputGroup-sizing-default">
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="input-group">
+                        <select th:field="*{type}" class="form-select" id="inputGroupSelect04"
+                                aria-label="Example select with button addon">
+                            <option th:each="EType : ${ETypes}"
+                                    th:value="${EType.name()}"
+                                    th:text="${EType.value}">Тип
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <button class="btn btn-outline-secondary" type="submit">Добавить Колонку</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div style="color:red" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name Error</div>
+                </div>
+                <div class="col">
+                    <div style="color:red" th:if="${#fields.hasErrors('type')}" th:errors="*{type}">Type Error</div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <a class="btn btn-success mt-3" th:href="@{/constructor/edit/{tableId}(tableId=${table.id})}" role="button">Вернуться</a>
+</div>
+
+<script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>
+<script th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
+<script th:src="@{/webjars/bootstrap/5.1.3/js/bootstrap.min.js}"></script>
+</body>
+</html>

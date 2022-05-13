@@ -1,7 +1,7 @@
 package com.baska.RSE.DAO;
 
 import com.baska.RSE.Models.ObjectData;
-import com.baska.RSE.Models.ProjectTable;
+import com.baska.RSE.Models.CustomTable;
 import com.baska.RSE.Models.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ import java.util.Set;
 public class PermissionAndAccessDAO {
 
     @Autowired
-    ProjectTableDAO projectTableDAO;
+    CustomTableDAO customTableDAO;
 
     @Autowired
     ObjectsDAO objectsDAO;
@@ -27,11 +27,11 @@ public class PermissionAndAccessDAO {
         if (objectData ==null){
             return false;
         }
-        ProjectTable projectTable = projectTableDAO.getProjectTableById(objectData.getProjectTableId());
-        if (projectTable==null){
+        CustomTable customTable = customTableDAO.getCustomTableById(objectData.getProjectTableId());
+        if (customTable ==null){
             return false;
         }
-        Set<Role> rolesProject = projectTable.getRoles();
+        Set<Role> rolesProject = customTable.getRoles();
         Set<Role> rolesUser = userDAO.getRoles(userName);
         for (Role elproj :rolesProject){
             for (Role eluser: rolesUser){
@@ -45,11 +45,11 @@ public class PermissionAndAccessDAO {
 
 
     public boolean checkProjectTableUser(String projectTableId,String userName){
-        ProjectTable projectTable = projectTableDAO.getProjectTableById(projectTableId);
-        if (projectTable==null){
+        CustomTable customTable = customTableDAO.getCustomTableById(projectTableId);
+        if (customTable ==null){
             return false;
         }
-        Set<Role> rolesProject = projectTable.getRoles();
+        Set<Role> rolesProject = customTable.getRoles();
         Set<Role> rolesUser = userDAO.getRoles(userName);
         for (Role elproj :rolesProject){
             for (Role eluser: rolesUser){

@@ -26,24 +26,24 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="column : ${projectTable.getColumns()}">
+                <tr th:each="column : ${customTable.getColumns()}">
                     <td th:text="${column.priority}">priority</td>
                     <td>
-                        <a th:href="@{/constructor/columns/{id}/edit/{columnId}/up(id=${projectTable.id},columnId=${column.id})}"
+                        <a th:href="@{/constructor/columns/{id}/edit/{columnId}/up(id=${customTable.id},columnId=${column.id})}"
                            class="btn btn-primary">Верх</a>
-                        <a th:href="@{/constructor/columns/{id}/edit/{columnId}/down(id=${projectTable.id},columnId=${column.id})}"
+                        <a th:href="@{/constructor/columns/{id}/edit/{columnId}/down(id=${customTable.id},columnId=${column.id})}"
                            class="btn btn-primary">Вниз</a>
                     </td>
                     <td th:text="${column.name}">name</td>
-                    <td th:text="${column.type}">type</td>
-                    <div th:if="${column.type.toString().equals('ENUM')}">
-                        <td><a th:href="@{/constructor/columns/{id}/editEnum/{columnId}/(id=${projectTable.id},columnId=${column.id})}">Редактировать</a></td>
+                    <td th:text="${column.EType}">EType</td>
+                    <div th:if="${column.EType.toString().equals('ENUM')}">
+                        <td><a th:href="@{/constructor/columns/{id}/editEnum/{columnId}/(id=${customTable.id},columnId=${column.id})}">Редактировать</a></td>
                     </div>
-                    <div th:if="${!column.type.toString().equals('ENUM')}">
+                    <div th:if="${!column.EType.toString().equals('ENUM')}">
                         <td>Редактировать</td>
                     </div>
                     <td>
-                        <a th:href="@{/constructor/columns/{id}/edit/{columnId}/delete(id=${projectTable.id},columnId=${column.id})}"
+                        <a th:href="@{/constructor/columns/{id}/edit/{columnId}/delete(id=${customTable.id},columnId=${column.id})}"
                                class="btn btn-primary">Удалить
                         </a>
                     </td>
@@ -52,8 +52,8 @@
             </table>
         </div>
     </div>
-    <form name='columnForm' th:object="${columnsPayload}"
-          th:action="@{/constructor/columns/{id}/addColumn(id=${projectTable.getId()})}" method="post">
+    <form name='columnForm' th:object="${typePayload}"
+          th:action="@{/constructor/columns/{id}/addColumn(id=${customTable.getId()})}" method="post">
         <div class="form-group">
             <div class="col-lg-6 col-lg-offset-2">
                 <div class="input-group mb-3">
@@ -63,11 +63,11 @@
                 </div>
 
                 <div class="input-group">
-                    <select th:field="*{type}" class="form-select" id="inputGroupSelect04"
+                    <select th:field="*{EType}" class="form-select" id="inputGroupSelect04"
                             aria-label="Example select with button addon">
-                        <option th:each="type : ${types}"
-                                th:value="${type.name()}"
-                                th:text="${type.name()}">Тип
+                        <option th:each="EType : ${ETypes}"
+                                th:value="${EType.name()}"
+                                th:text="${EType.name()}">Тип
                         </option>
                     </select>
                 </div>
@@ -75,7 +75,7 @@
             </div>
         </div>
     </form>
-    <a class="btn btn-primary" th:href="@{/constructor/columns/{id}/save(id=${projectTable.getId()})}" role="button">Сохранить</a>
+    <a class="btn btn-primary" th:href="@{/constructor/columns/{id}/save(id=${customTable.getId()})}" role="button">Сохранить</a>
 </div>
 
 <script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>
