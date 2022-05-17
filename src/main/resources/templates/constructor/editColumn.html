@@ -11,7 +11,7 @@
 <header th:insert="header :: header"></header>
 
 <div class="container mt-5 pt-5">
-    Выбранные реквизиты
+    Выбранные колонки
     <div class="form-group">
         <div class="col-lg-10">
             <table class="table table-bordered">
@@ -26,24 +26,24 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="prop : ${table.getProps()}">
-                    <td th:text="${prop.priority}">priority</td>
+                <tr th:each="column : ${table.getColumns()}">
+                    <td th:text="${column.priority}">priority</td>
                     <td>
-                        <a th:href="@{/constructor/edit/{tableId}/editProps/{propId}/up(tableId=${table.id},propId=${prop.id})}"
+                        <a th:href="@{/constructor/edit/{tableId}/editColumn/{columnId}/up(tableId=${table.id},columnId=${column.id})}"
                            class="btn btn-info">Верх</a>
-                        <a th:href="@{/constructor/edit/{tableId}/editProps/{propId}/down(tableId=${table.id},propId=${prop.id})}"
+                        <a th:href="@{/constructor/edit/{tableId}/editColumn/{columnId}/down(tableId=${table.id},columnId=${column.id})}"
                            class="btn btn-info">Вниз</a>
                     </td>
-                    <td th:text="${prop.name}">name</td>
-                    <td th:text="${prop.EType.value}">EType</td>
-                    <div th:if="${prop.EType.name().equals('ENUM')}">
-                        <td><a th:href="@{/constructor/edit/{tableId}/editProps/{propId}/selectEnum(tableId=${table.id},propId=${prop.id})}">Редактировать</a></td>
+                    <td th:text="${column.name}">name</td>
+                    <td th:text="${column.EType.value}">EType</td>
+                    <div th:if="${column.EType.name().equals('ENUM')}">
+                        <td><a th:href="@{/constructor/edit/{tableId}/editColumn/{columnId}/selectEnum(tableId=${table.id},columnId=${column.id})}">Редактировать</a></td>
                     </div>
-                    <div th:if="${!prop.EType.name().equals('ENUM')}">
+                    <div th:if="${!column.EType.name().equals('ENUM')}">
                         <td>Редактировать</td>
                     </div>
                     <td>
-                        <a th:href="@{/constructor/edit/{tableId}/editProps/{propId}/delete(tableId=${table.id},propId=${prop.id})}"
+                        <a th:href="@{/constructor/edit/{tableId}/editColumn/{columnId}/delete(tableId=${table.id},columnId=${column.id})}"
                            class="btn btn-danger">Удалить
                         </a>
                     </td>
@@ -53,12 +53,12 @@
         </div>
     </div>
     <form th:object="${typePayload}"
-          th:action="@{/constructor/edit/{tableId}/editProps/addProp(tableId=${table.getId()})}" method="post">
+          th:action="@{/constructor/edit/{tableId}/editColumn/addColumn(tableId=${table.getId()})}" method="post">
         <div class="container">
             <div class="row">
                 <div class="col">
                     <div class="input-group mb-3">
-                        <span class="input-group-text" id="inputGroup-sizing-default">Имя реквизита</span>
+                        <span class="input-group-text" id="inputGroup-sizing-default">Имя колонки</span>
                         <input type="text" th:field="*{name}" class="form-control" aria-label="Sizing example input"
                                aria-describedby="inputGroup-sizing-default">
                     </div>
@@ -77,7 +77,7 @@
                 </div>
 
                 <div class="col">
-                    <button class="btn btn-primary" type="submit">Добавить реквизит</button>
+                    <button class="btn btn-primary" type="submit">Добавить Колонку</button>
                 </div>
             </div>
             <div class="row">

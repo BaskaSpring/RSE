@@ -27,7 +27,7 @@ public class CustomTable {
     private String name;
 
     @Column(name = "enabled")
-    private Boolean enabled;
+    private Boolean enabled = false;
 
     @Column(name = "timestamp")
     private Instant timestamp =Instant.now();

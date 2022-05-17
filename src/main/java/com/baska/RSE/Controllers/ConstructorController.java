@@ -5,9 +5,9 @@ import com.baska.RSE.DAO.CustomTableDAO;
 import com.baska.RSE.DAO.RoleDAO;
 import com.baska.RSE.DAO.TableColumnDAO;
 import com.baska.RSE.Models.*;
+import com.baska.RSE.Payload.Constructor.EnumPayload;
 import com.baska.RSE.Payload.Constructor.TypePayload;
 import com.baska.RSE.Payload.Constructor.CustomTablePayload;
-import com.baska.RSE.Payload.Constructor.EnumPayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -40,6 +40,540 @@ public class ConstructorController {
     EnumValuesDAO enumValuesDAO;
 
 
+    @PostMapping("/edit/{tableId}/editColumn/{columnId}/editEnum/{enumId}/add")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String postSelectEnumAddColumn(@PathVariable("tableId") String tableId,
+                                          @PathVariable("columnId") Long columnId,
+                                          @PathVariable("enumId") Long enumId,
+                                          @ModelAttribute("enumPayload") @Valid EnumPayload enumPayload,
+                                          BindingResult bindingResult,
+                                          Model model) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        Types column = tableColumnDAO.getById(columnId);
+        if (column == null) {
+            return "redirect:/constructor/index";
+        }
+        EnumValues enumValues = enumValuesDAO.getById(enumId);
+        if (enumValues == null) {
+            return "redirect:/constructor/index";
+        }
+        if (bindingResult.hasErrors()) {
+            List<EnumValues> enumValuesList = enumValuesDAO.getAll();
+            EnumPayload enumPayload2 = new EnumPayload();
+            model.addAttribute("enumValues", enumValues);
+            model.addAttribute("enumPayload", enumPayload2);
+            model.addAttribute("enumValuesList", enumValuesList);
+            model.addAttribute("table", customTable);
+            model.addAttribute("column", column);
+            return "constructor/editEnumColumn";
+        }
+        List<String> stringList = enumValues.getEnumTypes();
+        stringList.add(enumPayload.getName());
+        enumValues.setEnumTypes(stringList);
+        enumValuesDAO.save(enumValues);
+        return "redirect:/constructor/edit/" + tableId + "/editColumn/" + columnId + "/editEnum/" + enumValues.getId();
+    }
+
+    @GetMapping("/edit/{tableId}/editColumn/{columnId}/editEnum/{enumId}/delete/{value}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String getSelectEnumDeleteColumn(@PathVariable("tableId") String tableId,
+                                            @PathVariable("columnId") Long columnId,
+                                            @PathVariable("enumId") Long enumId,
+                                            @PathVariable("value") String value) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        Types column = tableColumnDAO.getById(columnId);
+        if (column == null) {
+            return "redirect:/constructor/index";
+        }
+        EnumValues enumValues = enumValuesDAO.getById(enumId);
+        if (enumValues == null) {
+            return "redirect:/constructor/index";
+        }
+        List<String> values = enumValues.getEnumTypes();
+        values.remove(value);
+        enumValues.setEnumTypes(values);
+        enumValuesDAO.save(enumValues);
+        return "redirect:/constructor/edit/" + tableId + "/editColumn/" + columnId + "/editEnum/" + enumValues.getId();
+    }
+
+
+    @GetMapping("/edit/{tableId}/editColumn/{columnId}/editEnum/{enumId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String getSelectEnumColumn(@PathVariable("tableId") String tableId,
+                                      @PathVariable("columnId") Long columnId,
+                                      @PathVariable("enumId") Long enumId,
+                                      Model model) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        Types column = tableColumnDAO.getById(columnId);
+        if (column == null) {
+            return "redirect:/constructor/index";
+        }
+        EnumValues enumValues = enumValuesDAO.getById(enumId);
+        if (enumValues == null) {
+            return "redirect:/constructor/index";
+        }
+
+        List<EnumValues> enumValuesList = enumValuesDAO.getAll();
+        EnumPayload enumPayload = new EnumPayload();
+        model.addAttribute("enumValues", enumValues);
+        model.addAttribute("enumPayload", enumPayload);
+        model.addAttribute("enumValuesList", enumValuesList);
+        model.addAttribute("table", customTable);
+        model.addAttribute("column", column);
+        return "constructor/editEnumColumn";
+    }
+
+    @PostMapping("/edit/{tableId}/editColumn/{columnId}/editEnum")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String postSelectEnumColumn(@PathVariable("tableId") String tableId,
+                                       @PathVariable("columnId") Long columnId,
+                                       @RequestParam("enumId") Long enumId) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        Types column = tableColumnDAO.getById(columnId);
+        if (column == null) {
+            return "redirect:/constructor/index";
+        }
+        EnumValues enumValues = enumValuesDAO.getById(enumId);
+        if (enumValues == null) {
+            return "redirect:/constructor/index";
+        }
+        column.setEnumValue(enumValues);
+        tableColumnDAO.save(column);
+        return "redirect:/constructor/edit/" + tableId + "/editColumn/" + columnId + "/editEnum/" + enumValues.getId();
+    }
+
+
+    @PostMapping("/edit/{tableId}/editColumn/{columnId}/selectEnum/add")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String postSelectEnumAddColumn(@PathVariable("tableId") String tableId,
+                                          @PathVariable("columnId") Long columnId,
+                                          @ModelAttribute("enumPayload") @Valid EnumPayload enumPayload,
+                                          BindingResult bindingResult,
+                                          Model model) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        Types column = tableColumnDAO.getById(columnId);
+        if (column == null) {
+            return "redirect:/constructor/index";
+        }
+        if (bindingResult.hasErrors()) {
+            List<EnumValues> enumValuesList = enumValuesDAO.getAll();
+            EnumPayload enumPayload2 = new EnumPayload();
+            model.addAttribute("enumPayload", enumPayload2);
+            model.addAttribute("enumValuesList", enumValuesList);
+            model.addAttribute("table", customTable);
+            model.addAttribute("column", column);
+            return "constructor/selectEnum";
+        }
+        EnumValues enumValue = new EnumValues();
+        enumValue.setName(enumPayload.getName());
+        enumValue = enumValuesDAO.save(enumValue);
+        column.setEnumValue(enumValue);
+        tableColumnDAO.save(column);
+        return "redirect:/constructor/edit/" + tableId + "/editColumn/" + columnId + "/editEnum/" + enumValue.getId();
+    }
+
+
+    @GetMapping("/edit/{tableId}/editColumn/{columnId}/selectEnum")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String getSelectEnumColumn(@PathVariable("tableId") String tableId,
+                                      @PathVariable("columnId") Long columnId,
+                                      Model model) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        Types column = tableColumnDAO.getById(columnId);
+        if (column == null) {
+            return "redirect:/constructor/index";
+        }
+        EnumValues enumValue = column.getEnumValue();
+        List<EnumValues> enumValuesList = enumValuesDAO.getAll();
+        EnumPayload enumPayload = new EnumPayload();
+        model.addAttribute("enumPayload", enumPayload);
+        model.addAttribute("enumValuesList", enumValuesList);
+        model.addAttribute("table", customTable);
+        model.addAttribute("column", column);
+        return "constructor/selectEnumColumn";
+    }
+    /////////////////////////////////////////////
+
+
+    @PostMapping("/edit/{tableId}/editProps/{propId}/editEnum/{enumId}/add")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String postSelectEnumAdd(@PathVariable("tableId") String tableId,
+                                    @PathVariable("propId") Long propId,
+                                    @PathVariable("enumId") Long enumId,
+                                    @ModelAttribute("enumPayload") @Valid EnumPayload enumPayload,
+                                    BindingResult bindingResult,
+                                    Model model) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        Types prop = tableColumnDAO.getById(propId);
+        if (prop == null) {
+            return "redirect:/constructor/index";
+        }
+        EnumValues enumValues = enumValuesDAO.getById(enumId);
+        if (enumValues == null) {
+            return "redirect:/constructor/index";
+        }
+        if (bindingResult.hasErrors()) {
+            List<EnumValues> enumValuesList = enumValuesDAO.getAll();
+            EnumPayload enumPayload2 = new EnumPayload();
+            model.addAttribute("enumValues", enumValues);
+            model.addAttribute("enumPayload", enumPayload2);
+            model.addAttribute("enumValuesList", enumValuesList);
+            model.addAttribute("table", customTable);
+            model.addAttribute("prop", prop);
+            return "constructor/editEnum";
+        }
+        List<String> stringList = enumValues.getEnumTypes();
+        stringList.add(enumPayload.getName());
+        enumValues.setEnumTypes(stringList);
+        enumValuesDAO.save(enumValues);
+        return "redirect:/constructor/edit/" + tableId + "/editProps/" + propId + "/editEnum/" + enumValues.getId();
+    }
+
+    @GetMapping("/edit/{tableId}/editProps/{propId}/editEnum/{enumId}/delete/{value}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String getSelectEnumDelete(@PathVariable("tableId") String tableId,
+                                      @PathVariable("propId") Long propId,
+                                      @PathVariable("enumId") Long enumId,
+                                      @PathVariable("value") String value) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        Types prop = tableColumnDAO.getById(propId);
+        if (prop == null) {
+            return "redirect:/constructor/index";
+        }
+        EnumValues enumValues = enumValuesDAO.getById(enumId);
+        if (enumValues == null) {
+            return "redirect:/constructor/index";
+        }
+        List<String> values = enumValues.getEnumTypes();
+        values.remove(value);
+        enumValues.setEnumTypes(values);
+        enumValuesDAO.save(enumValues);
+        return "redirect:/constructor/edit/" + tableId + "/editProps/" + propId + "/editEnum/" + enumValues.getId();
+    }
+
+
+    @GetMapping("/edit/{tableId}/editProps/{propId}/editEnum/{enumId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String getSelectEnum(@PathVariable("tableId") String tableId,
+                                @PathVariable("propId") Long propId,
+                                @PathVariable("enumId") Long enumId,
+                                Model model) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        Types prop = tableColumnDAO.getById(propId);
+        if (prop == null) {
+            return "redirect:/constructor/index";
+        }
+        EnumValues enumValues = enumValuesDAO.getById(enumId);
+        if (enumValues == null) {
+            return "redirect:/constructor/index";
+        }
+
+        List<EnumValues> enumValuesList = enumValuesDAO.getAll();
+        EnumPayload enumPayload = new EnumPayload();
+        model.addAttribute("enumValues", enumValues);
+        model.addAttribute("enumPayload", enumPayload);
+        model.addAttribute("enumValuesList", enumValuesList);
+        model.addAttribute("table", customTable);
+        model.addAttribute("prop", prop);
+        return "constructor/editEnum";
+    }
+
+    @PostMapping("/edit/{tableId}/editProps/{propId}/editEnum")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String postSelectEnum(@PathVariable("tableId") String tableId,
+                                 @PathVariable("propId") Long propId,
+                                 @RequestParam("enumId") Long enumId) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        Types prop = tableColumnDAO.getById(propId);
+        if (prop == null) {
+            return "redirect:/constructor/index";
+        }
+        EnumValues enumValues = enumValuesDAO.getById(enumId);
+        if (enumValues == null) {
+            return "redirect:/constructor/index";
+        }
+        prop.setEnumValue(enumValues);
+        tableColumnDAO.save(prop);
+        return "redirect:/constructor/edit/" + tableId + "/editProps/" + propId + "/editEnum/" + enumValues.getId();
+    }
+
+
+    @PostMapping("/edit/{tableId}/editProps/{propId}/selectEnum/add")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String postSelectEnumAdd(@PathVariable("tableId") String tableId,
+                                    @PathVariable("propId") Long propId,
+                                    @ModelAttribute("enumPayload") @Valid EnumPayload enumPayload,
+                                    BindingResult bindingResult,
+                                    Model model) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        Types prop = tableColumnDAO.getById(propId);
+        if (prop == null) {
+            return "redirect:/constructor/index";
+        }
+        if (bindingResult.hasErrors()) {
+            List<EnumValues> enumValuesList = enumValuesDAO.getAll();
+            EnumPayload enumPayload2 = new EnumPayload();
+            model.addAttribute("enumPayload", enumPayload2);
+            model.addAttribute("enumValuesList", enumValuesList);
+            model.addAttribute("table", customTable);
+            model.addAttribute("prop", prop);
+            return "constructor/selectEnum";
+        }
+        EnumValues enumValue = new EnumValues();
+        enumValue.setName(enumPayload.getName());
+        enumValue = enumValuesDAO.save(enumValue);
+        prop.setEnumValue(enumValue);
+        tableColumnDAO.save(prop);
+        return "redirect:/edit/" + tableId + "/editProps/" + propId + "/selectEnum/" + enumValue.getId();
+    }
+
+
+    @GetMapping("/edit/{tableId}/editProps/{propId}/selectEnum")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String getSelectEnum(@PathVariable("tableId") String tableId,
+                                @PathVariable("propId") Long propId,
+                                Model model) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        Types prop = tableColumnDAO.getById(propId);
+        if (prop == null) {
+            return "redirect:/constructor/index";
+        }
+        EnumValues enumValue = prop.getEnumValue();
+        List<EnumValues> enumValuesList = enumValuesDAO.getAll();
+        EnumPayload enumPayload = new EnumPayload();
+        model.addAttribute("enumPayload", enumPayload);
+        model.addAttribute("enumValuesList", enumValuesList);
+        model.addAttribute("table", customTable);
+        model.addAttribute("prop", prop);
+        return "constructor/selectEnum";
+    }
+
+
+    @GetMapping("/edit/{tableId}/delete")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String getDelete(@PathVariable String tableId) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        customTableDAO.deleteCustomTable(customTable);
+        return "redirect:/constructor/tableList";
+    }
+
+    @PostMapping("/edit/{tableId}/editColumn/addColumn")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String postAddColumn(@PathVariable String tableId,
+                                @ModelAttribute("typePayload") @Valid TypePayload typePayload,
+                                BindingResult bindingResult,
+                                Model model) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        if (bindingResult.hasErrors()) {
+            List<EType> ETypes = new ArrayList<>();
+            ETypes.add(EType.BOOLEAN);
+            ETypes.add(EType.ENUM);
+            ETypes.add(EType.NUMBER);
+            ETypes.add(EType.STRING);
+            ETypes.add(EType.DATE);
+            model.addAttribute("ETypes", ETypes);
+            model.addAttribute("table", customTable);
+            return "constructor/editColumn";
+        }
+
+        Types types = new Types();
+        types.setName(typePayload.getName());
+        boolean finded = false;
+        if (EType.BOOLEAN.name().equals(typePayload.getType())) {
+            finded = true;
+            types.setEType(EType.BOOLEAN);
+        }
+        if (EType.DATE.name().equals(typePayload.getType())) {
+            finded = true;
+            types.setEType(EType.DATE);
+        }
+        if (EType.ENUM.name().equals(typePayload.getType())) {
+            finded = true;
+            types.setEType(EType.ENUM);
+        }
+        if (EType.STRING.name().equals(typePayload.getType())) {
+            finded = true;
+            types.setEType(EType.STRING);
+        }
+        if (EType.NUMBER.name().equals(typePayload.getType())) {
+            finded = true;
+            types.setEType(EType.NUMBER);
+        }
+        if (!finded) {
+            return "redirect:/constructor/index";
+        }
+        int priority = 1;
+        if (!customTable.getColumns().isEmpty()) {
+            priority = customTable.getColumns().size() + 1;
+        }
+        types.setPriority(priority);
+        Types newTableValue = tableColumnDAO.save(types);
+        Set<Types> tableValueSet = customTable.getColumns();
+        tableValueSet.add(newTableValue);
+        customTable.setColumns(tableValueSet);
+        CustomTable resp = customTableDAO.save(customTable);
+        return "redirect:/constructor/edit/" + resp.getId() + "/editColumn";
+    }
+
+
+    @GetMapping("/edit/{tableId}/editColumn/{columnId}/delete")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String getEditColumnDelete(@PathVariable("tableId") String tableId,
+                                      @PathVariable("columnId") Long columnId) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        Types type = tableColumnDAO.getById(columnId);
+        if (type == null) {
+            return "redirect:/constructor/index";
+        }
+        int priority = type.getPriority();
+        Set<Types> typesSet = customTable.getColumns();
+        typesSet.remove(type);
+        Set<Types> newTable = new HashSet<>();
+        for (Types el : typesSet) {
+            if (el.getPriority() > priority) {
+                el.setPriority(el.getPriority() - 1);
+            }
+            newTable.add(tableColumnDAO.save(el));
+        }
+        customTable.setColumns(newTable);
+        CustomTable resp = customTableDAO.save(customTable);
+        tableColumnDAO.delete(type);
+        return "redirect:/constructor/edit/" + resp.getId() + "/editColumn";
+    }
+
+
+    @GetMapping("/edit/{tableId}/editColumn/{columnId}/up")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String getEditColumnUp(@PathVariable("tableId") String tableId,
+                                  @PathVariable("columnId") Long columnId) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        Types type = tableColumnDAO.getById(columnId);
+        if (type == null) {
+            return "redirect:/constructor/index";
+        }
+        if (type.getPriority() <= 1) {
+            return "redirect:/constructor/edit/" + customTable.getId() + "/editColumn/";
+        }
+        Set<Types> typeSet = customTable.getColumns();
+        Types swap = new Types();
+        for (Types el : typeSet) {
+            if (el.getPriority() + 1 == type.getPriority()) {
+                swap = el;
+                break;
+            }
+        }
+        int prior = swap.getPriority();
+        swap.setPriority(type.getPriority());
+        type.setPriority(prior);
+        tableColumnDAO.save(swap);
+        tableColumnDAO.save(type);
+        CustomTable resp = customTableDAO.save(customTable);
+        return "redirect:/constructor/edit/" + resp.getId() + "/editColumn/";
+    }
+
+    @GetMapping("/edit/{tableId}/editColumn/{columnId}/down")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String getEditColumnDown(@PathVariable("tableId") String tableId,
+                                    @PathVariable("columnId") Long columnId) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        Types type = tableColumnDAO.getById(columnId);
+        if (type == null) {
+            return "redirect:/constructor/index";
+        }
+        if (type.getPriority() >= customTable.getProps().size()) {
+            return "redirect:/constructor/edit/" + customTable.getId() + "/editColumn/";
+        }
+        Set<Types> typeSet = customTable.getColumns();
+        Types swap = new Types();
+        for (Types el : typeSet) {
+            if (el.getPriority() == type.getPriority() + 1) {
+                swap = el;
+                break;
+            }
+        }
+        int prior = swap.getPriority();
+        swap.setPriority(type.getPriority());
+        type.setPriority(prior);
+        tableColumnDAO.save(swap);
+        tableColumnDAO.save(type);
+        CustomTable resp = customTableDAO.save(customTable);
+        return "redirect:/constructor/edit/" + resp.getId() + "/editColumn/";
+    }
+
+
+    @GetMapping("/edit/{tableId}/editColumn")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String getEditColumn(@PathVariable String tableId,
+                                Model model) {
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        if (customTable == null) {
+            return "redirect:/constructor/index";
+        }
+        List<EType> ETypes = new ArrayList<>();
+        ETypes.add(EType.BOOLEAN);
+        ETypes.add(EType.ENUM);
+        ETypes.add(EType.NUMBER);
+        ETypes.add(EType.STRING);
+        ETypes.add(EType.DATE);
+        TypePayload typePayload = new TypePayload();
+        model.addAttribute("ETypes", ETypes);
+        model.addAttribute("typePayload", typePayload);
+        model.addAttribute("table", customTable);
+        return "constructor/editColumn";
+    }
+
+
     @GetMapping("/edit/{tableId}/editProps/{propId}/delete")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String getEditPropDelete(@PathVariable("tableId") String tableId,
@@ -65,7 +599,7 @@ public class ConstructorController {
         customTable.setProps(newTable);
         CustomTable resp = customTableDAO.save(customTable);
         tableColumnDAO.delete(type);
-        return "redirect:/constructor/edit/"+resp.getId()+"/editProps";
+        return "redirect:/constructor/edit/" + resp.getId() + "/editProps";
     }
 
     @PostMapping("/edit/{tableId}/editProps/addProp")
@@ -75,7 +609,7 @@ public class ConstructorController {
                               BindingResult bindingResult,
                               Model model) {
         CustomTable customTable = customTableDAO.getCustomTableById(tableId);
-        if (customTable ==null) {
+        if (customTable == null) {
             return "redirect:/constructor/index";
         }
         if (bindingResult.hasErrors()) {
@@ -117,7 +651,7 @@ public class ConstructorController {
             return "redirect:/constructor/index";
         }
         int priority = 1;
-        if (!customTable.getColumns().isEmpty()) {
+        if (!customTable.getProps().isEmpty()) {
             priority = customTable.getProps().size() + 1;
         }
         types.setPriority(priority);
@@ -126,9 +660,8 @@ public class ConstructorController {
         tableValueSet.add(newTableValue);
         customTable.setProps(tableValueSet);
         CustomTable resp = customTableDAO.save(customTable);
-        return "redirect:/constructor/edit/"+resp.getId()+"/editProps";
+        return "redirect:/constructor/edit/" + resp.getId() + "/editProps";
     }
-
 
 
     @GetMapping("/edit/{tableId}/editProps/{propId}/up")
@@ -144,7 +677,7 @@ public class ConstructorController {
             return "redirect:/constructor/index";
         }
         if (type.getPriority() <= 1) {
-            return "redirect:/constructor/edit/"+customTable.getId()+"/editProps/";
+            return "redirect:/constructor/edit/" + customTable.getId() + "/editProps/";
         }
         Set<Types> typeSet = customTable.getProps();
         Types swap = new Types();
@@ -160,7 +693,7 @@ public class ConstructorController {
         tableColumnDAO.save(swap);
         tableColumnDAO.save(type);
         CustomTable resp = customTableDAO.save(customTable);
-        return "redirect:/constructor/edit/"+resp.getId()+"/editProps/";
+        return "redirect:/constructor/edit/" + resp.getId() + "/editProps/";
     }
 
     @GetMapping("/edit/{tableId}/editProps/{propId}/down")
@@ -168,7 +701,7 @@ public class ConstructorController {
     public String getEditPropsDown(@PathVariable("tableId") String tableId,
                                    @PathVariable("propId") Long propId) {
         CustomTable customTable = customTableDAO.getCustomTableById(tableId);
-        if (customTable ==null) {
+        if (customTable == null) {
             return "redirect:/constructor/index";
         }
         Types type = tableColumnDAO.getById(propId);
@@ -176,7 +709,7 @@ public class ConstructorController {
             return "redirect:/constructor/index";
         }
         if (type.getPriority() >= customTable.getProps().size()) {
-            return "redirect:/constructor/edit/"+customTable.getId()+"/editProps/";
+            return "redirect:/constructor/edit/" + customTable.getId() + "/editProps/";
         }
         Set<Types> typeSet = customTable.getProps();
         Types swap = new Types();
@@ -192,7 +725,7 @@ public class ConstructorController {
         tableColumnDAO.save(swap);
         tableColumnDAO.save(type);
         CustomTable resp = customTableDAO.save(customTable);
-        return "redirect:/constructor/edit/"+resp.getId()+"/editProps/";
+        return "redirect:/constructor/edit/" + resp.getId() + "/editProps/";
     }
 
 
@@ -219,7 +752,7 @@ public class ConstructorController {
 
     @GetMapping("/edit/{tableId}/editProps")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public String postEditProps(@PathVariable String tableId,
+    public String getEditProps(@PathVariable String tableId,
                                Model model) {
         CustomTable customTable = customTableDAO.getCustomTableById(tableId);
         if (customTable == null) {
@@ -246,22 +779,29 @@ public class ConstructorController {
                                BindingResult bindingResult,
                                Model model) {
         CustomTable customTable = customTableDAO.getCustomTableById(tableId);
-        if (customTable==null){
+        if (customTable == null) {
             return "redirect:/constructor/index";
         }
         if (bindingResult.hasErrors()) {
             model.addAttribute("table", customTable);
             return "constructor/editTable";
         }
-        if (customTableDAO.isPresentByName(customTablePayload.getName())){
-            FieldError error = new FieldError("CustomTablePayload","name","Имя не уникально");
-            bindingResult.addError(error);
-            model.addAttribute("table", customTable);
-            return "constructor/editTable";
+        if (!customTable.getName().equals(customTablePayload.getName())) {
+            if (customTableDAO.isPresentByName(customTablePayload.getName())) {
+                FieldError error = new FieldError("CustomTablePayload", "name", "Имя не уникально");
+                bindingResult.addError(error);
+                model.addAttribute("table", customTable);
+                return "constructor/editTable";
+            }
         }
+        String bool = customTablePayload.getBool();
+        if (bool == null)
+            customTable.setEnabled(false);
+        else
+            customTable.setEnabled(true);
         customTable.setName(customTablePayload.getName());
         customTableDAO.save(customTable);
-        return "redirect:/constructor/edit/"+customTable.getId();
+        return "redirect:/constructor/edit/" + customTable.getId();
     }
 
     @PostMapping("/edit/{tableId}/addRole")
@@ -272,15 +812,15 @@ public class ConstructorController {
         if (customTable == null) {
             return "redirect:/constructor/index";
         }
-        Role role  = roleDAO.getRoleById(roleId);
-        if (role==null){
+        Role role = roleDAO.getRoleById(roleId);
+        if (role == null) {
             return "redirect:/constructor/index";
         }
         Set<Role> roles = customTable.getRoles();
         roles.add(role);
         customTable.setRoles(roles);
         customTableDAO.save(customTable);
-        return "redirect:/constructor/edit/"+customTable.getId()+"/editRole";
+        return "redirect:/constructor/edit/" + customTable.getId() + "/editRole";
     }
 
     @GetMapping("/edit/{tableId}/deleteRole/{roleId}")
@@ -291,15 +831,15 @@ public class ConstructorController {
         if (customTable == null) {
             return "redirect:/constructor/index";
         }
-        Role role  = roleDAO.getRoleById(roleId);
-        if (role==null){
+        Role role = roleDAO.getRoleById(roleId);
+        if (role == null) {
             return "redirect:/constructor/index";
         }
         Set<Role> roles = customTable.getRoles();
         roles.remove(role);
         customTable.setRoles(roles);
         customTableDAO.save(customTable);
-        return "redirect:/constructor/edit/"+customTable.getId()+"/editRole";
+        return "redirect:/constructor/edit/" + customTable.getId() + "/editRole";
     }
 
     @GetMapping("/edit/{tableId}/editRole")
@@ -329,17 +869,18 @@ public class ConstructorController {
         return "constructor/editRole";
     }
 
-    @GetMapping("/edit/{projectTableId}")
+    @GetMapping("/edit/{customTableId}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public String getEditTable(@PathVariable("projectTableId") String projectTableId,
-                                Model model) {
-        CustomTable customTable = customTableDAO.getCustomTableById(projectTableId);
-        if (customTable ==null) {
+    public String getEditTable(@PathVariable("customTableId") String customTableId,
+                               Model model) {
+        CustomTable customTable = customTableDAO.getCustomTableById(customTableId);
+        if (customTable == null) {
             return "redirect:/constructor/index";
         }
         CustomTablePayload customTablePayload = new CustomTablePayload();
         customTablePayload.setName(customTable.getName());
-        model.addAttribute("CustomTablePayload",customTablePayload);
+        customTablePayload.setBool(customTable.getEnabled().toString());
+        model.addAttribute("CustomTablePayload", customTablePayload);
         model.addAttribute("table", customTable);
         return "constructor/editTable";
     }
@@ -348,259 +889,9 @@ public class ConstructorController {
     @GetMapping("/tableList")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String getTableList(Model model) {
-        List<CustomTable> customTableList = customTableDAO.getProjectList();
+        List<CustomTable> customTableList = customTableDAO.getCustomTableList();
         model.addAttribute("tableList", customTableList);
-        return "constructor/projectTableList";
-    }
-
-
-//    @PostMapping("/columns/{id}/editEnum/{columnId}")
-//    @PreAuthorize("hasAuthority('ADMIN')")
-//    public String postEditEnum(@PathVariable("id") String id,
-//                               @PathVariable("columnId") Long columnId,
-//                               @ModelAttribute("enumPayload") @Valid EnumPayload enumPayload,
-//                               BindingResult bindingResult,
-//                               Model model) {
-//        CustomTable customTable = customTableDAO.getProjectTableById(id);
-//        if (customTable != null) {
-//            Types tableValue = tableColumnDAO.getById(columnId);
-//            if (bindingResult.hasErrors())
-//            {
-////                "dasd";
-//            }
-//            if (tableValue != null) {
-//                EnumValues enumValues = new EnumValues();
-//                enumValues.setValue(enumPayload.getName());
-//                EnumValues resp = enumValuesDAO.save(enumValues);
-//                Set<EnumValues> enumValuesSet = tableValue.getEnumTypes();
-//                enumValuesSet.add(resp);
-//                tableValue.setEnumTypes(enumValuesSet);
-//                Types response = tableColumnDAO.save(tableValue);
-//                model.addAttribute("enumPayload", new EnumPayload());
-//                model.addAttribute("projectTable", customTable);
-//                model.addAttribute("column", response);
-//                return "constructor/editEnum";
-//            }
-//            return "redirect:/constructor/index";
-//        }
-//        return "redirect:/constructor/index";
-//    }
-
-
-    @GetMapping("/columns/{id}/editEnum/{columnId}")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public String getEditEnum(@PathVariable("id") String id,
-                              @PathVariable("columnId") Long columnId,
-                              Model model) {
-        CustomTable customTable = customTableDAO.getCustomTableById(id);
-        if (customTable == null) {
-            return "redirect:/constructor/index";
-        }
-        Types tableValue = tableColumnDAO.getById(columnId);
-        if (tableValue == null) {
-            return "redirect:/constructor/index";
-        }
-        model.addAttribute("enumPayload", new EnumPayload());
-        model.addAttribute("projectTable", customTable);
-        model.addAttribute("column", tableValue);
-        return "constructor/editEnum";
-
-
-    }
-
-
-    @GetMapping("/columns/{id}/edit/{columnId}/up")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public String getEditUp(@PathVariable("id") String id,
-                                @PathVariable("columnId") Long columnId,
-                                Model model) {
-        CustomTable customTable = customTableDAO.getCustomTableById(id);
-        if (customTable !=null) {
-            boolean finded = false;
-            Types tableValue = tableColumnDAO.getById(columnId);
-            if (tableValue != null) {
-                if (tableValue.getPriority() > 1) {
-                    finded = true;
-                    Set<Types> columnSet = customTable.getColumns();
-                    Types swap = new Types();
-                    for (Types el : columnSet) {
-                        if (el.getPriority() + 1 == tableValue.getPriority()) {
-                            swap = el;
-                            break;
-                        }
-                    }
-                    int prior = swap.getPriority();
-                    swap.setPriority(tableValue.getPriority());
-                    tableValue.setPriority(prior);
-                    tableColumnDAO.save(swap);
-                    tableColumnDAO.save(tableValue);
-                } else{
-                    return "redirect:/constructor/columns/" + customTable.getId();
-                }
-            }
-            if (finded) {
-                CustomTable resp = customTableDAO.save(customTable);
-                return "redirect:/constructor/columns/" + resp.getId();
-            }
-            return "redirect:/constructor/index";
-        }
-        return "redirect:/constructor/index";
-    }
-
-    @GetMapping("/columns/{id}/edit/{columnId}/down")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public String getEditDown(@PathVariable("id") String id,
-                              @PathVariable("columnId") Long columnId,
-                              Model model){
-        CustomTable customTable = customTableDAO.getCustomTableById(id);
-        if (customTable !=null) {
-            boolean finded = false;
-            Types tableValue = tableColumnDAO.getById(columnId);
-            if (tableValue != null) {
-                if (tableValue.getPriority() < customTable.getColumns().size()) {
-                    finded = true;
-                    Set<Types> columnSet = customTable.getColumns();
-                    Types swap = new Types();
-                    for (Types el : columnSet) {
-                        if (el.getPriority() == tableValue.getPriority()+1) {
-                            swap = el;
-                            break;
-                        }
-                    }
-                    int prior = swap.getPriority();
-                    swap.setPriority(tableValue.getPriority());
-                    tableValue.setPriority(prior);
-                    tableColumnDAO.save(swap);
-                    tableColumnDAO.save(tableValue);
-                } else {
-                    return "redirect:/constructor/columns/" + customTable.getId();
-                }
-            }
-            if (finded) {
-                CustomTable resp = customTableDAO.save(customTable);
-                return "redirect:/constructor/columns/" + resp.getId();
-            }
-            return "redirect:/constructor/index";
-        }
-        return "redirect:/constructor/index";
-    }
-
-
-
-    @GetMapping("/columns/{id}/edit/{columnId}/delete")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public String getEditDelete(@PathVariable("id") String id,
-                              @PathVariable("columnId") Long columnId,
-                              Model model){
-        CustomTable customTable = customTableDAO.getCustomTableById(id);
-        if (customTable !=null) {
-            boolean finded = false;
-            Types tableValue = tableColumnDAO.getById(columnId);
-            if (tableValue != null) {
-                finded = true;
-                int priority = tableValue.getPriority();
-                Set<Types> tableValueSet = customTable.getColumns();
-                tableValueSet.remove(tableValue);
-                Set<Types> newTable = new HashSet<>();
-                for (Types el : tableValueSet) {
-                    if (el.getPriority()>priority){
-                        el.setPriority(el.getPriority()-1);
-                    }
-                    newTable.add(tableColumnDAO.save(el));
-                }
-                customTable.setColumns(newTable);
-            }
-            if (finded) {
-                CustomTable resp = customTableDAO.save(customTable);
-                tableColumnDAO.delete(tableValue);
-                return "redirect:/constructor/columns/" + resp.getId();
-            }
-            return "redirect:/constructor/index";
-        }
-        return "redirect:/constructor/index";
-    }
-
-
-    @GetMapping("/columns/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public String getColumns(@PathVariable String id,Model model) {
-        if (!customTableDAO.isPresent(id)){
-            return "redirect:/constructor/index";
-        }
-        CustomTable customTable = customTableDAO.getCustomTableById(id);
-        List<EType> ETypes = new ArrayList<>();
-        ETypes.add(EType.BOOLEAN);
-        ETypes.add(EType.ENUM);
-        ETypes.add(EType.NUMBER);
-        ETypes.add(EType.STRING);
-        ETypes.add(EType.DATE);
-        model.addAttribute("types", ETypes);
-        model.addAttribute("columnsPayload",new TypePayload());
-        model.addAttribute("projectTable", customTable);
-        return "constructor/columns";
-    }
-
-    @GetMapping("/columns/{id}/save")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public String getSave(@PathVariable String id,Model model) {
-        if (!customTableDAO.isPresent(id)){
-            return "redirect:/constructor/index";
-        }
-        CustomTable customTable = customTableDAO.getCustomTableById(id);
-        customTable.setEnabled(true);
-        customTableDAO.save(customTable);
-        return "redirect:/constructor/index";
-    }
-
-    @PostMapping("/columns/{id}/addColumn")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public String postAddColumn(@PathVariable String id,
-                                @ModelAttribute("columnsPayload") @Valid TypePayload typePayload,
-                                BindingResult bindingResult,
-                                Model model) {
-        CustomTable customTable = customTableDAO.getCustomTableById(id);
-        if (customTable !=null) {
-            if (bindingResult.hasErrors())
-                return "constructor/columns"+ customTable.getId();
-            Types tableValue = new Types();
-            tableValue.setName(typePayload.getName());
-            boolean finded = false;
-            if (EType.BOOLEAN.toString().equals(typePayload.getType())) {
-                finded = true;
-                tableValue.setEType(EType.BOOLEAN);
-            }
-            if (EType.DATE.toString().equals(typePayload.getType())) {
-                finded = true;
-                tableValue.setEType(EType.DATE);
-            }
-            if (EType.ENUM.toString().equals(typePayload.getType())) {
-                finded = true;
-                tableValue.setEType(EType.ENUM);
-            }
-            if (EType.STRING.toString().equals(typePayload.getType())) {
-                finded = true;
-                tableValue.setEType(EType.STRING);
-            }
-            if (EType.NUMBER.toString().equals(typePayload.getType())) {
-                finded = true;
-                tableValue.setEType(EType.NUMBER);
-            }
-            if (finded){
-                int priority = 1;
-                if (!customTable.getColumns().isEmpty()){
-                    priority = customTable.getColumns().size()+1;
-                }
-                tableValue.setPriority(priority);
-                Types newTableValue = tableColumnDAO.save(tableValue);
-                Set<Types> tableValueSet = customTable.getColumns();
-                tableValueSet.add(newTableValue);
-                customTable.setColumns(tableValueSet);
-                CustomTable resp = customTableDAO.save(customTable);
-                return "redirect:/constructor/columns/" + resp.getId();
-            }
-            return "redirect:/constructor/index";
-        }
-        return "redirect:/constructor/index";
+        return "constructor/customTableList";
     }
 
 
@@ -610,60 +901,27 @@ public class ConstructorController {
         return "constructor/index";
     }
 
-    @GetMapping("/createProjectTable")
+    @GetMapping("/createCustomTable")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String getCreate(Model model) {
         CustomTablePayload customTablePayload = new CustomTablePayload();
-        model.addAttribute("projectTablePayload", customTablePayload);
-        return "constructor/createProjectTable";
+        model.addAttribute("customTablePayload", customTablePayload);
+        return "constructor/createCustomTable";
     }
 
-    @PostMapping("/createProjectTable")
+    @PostMapping("/createCustomTable")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public String postCreate(@ModelAttribute("projectTablePayload") @Valid CustomTablePayload customTablePayload,
-                         BindingResult bindingResult) {
+    public String postCreate(@ModelAttribute("customTablePayload") @Valid CustomTablePayload customTablePayload,
+                             BindingResult bindingResult) {
         if (bindingResult.hasErrors())
-            return "constructor/createProjectTable";
+            return "constructor/createCustomTable";
 
         CustomTable customTable = customTableDAO.newProjectTable(customTablePayload);
-        if (customTable ==null) {
-            FieldError error = new FieldError("ProjectTablePayload","name","Имя не уникально");
+        if (customTable == null) {
+            FieldError error = new FieldError("ProjectTablePayload", "name", "Имя не уникально");
             bindingResult.addError(error);
-            return "constructor/createProjectTable";
+            return "constructor/createCustomTable";
         }
-        return "redirect:/constructor/selectRoles/"+ customTable.getId();
+        return "redirect:/constructor/edit/" + customTable.getId();
     }
-
-    @GetMapping("/selectRoles/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public String getSelectRoles(@PathVariable String id,Model model) {
-        if (!customTableDAO.isPresent(id)){
-            return "redirect:/constructor/index";
-        }
-        CustomTable customTable = customTableDAO.getCustomTableById(id);
-        List<Role> roles = roleDAO.getRoles();
-        model.addAttribute("roles",roles);
-        model.addAttribute("projectTable", customTable);
-        return "constructor/selectRoles";
-    }
-
-
-    @PostMapping("/selectRoles/{id}/addrole")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public String postSelectRoles(@PathVariable String id,@RequestParam Long roleId,Model model) {
-        Role role = roleDAO.getRoleById(roleId);
-        CustomTable customTable = customTableDAO.getCustomTableById(id);
-        if (customTable !=null){
-            if (role!=null){
-                customTable.getRoles().add(role);
-                CustomTable resp = customTableDAO.save(customTable);
-                model.addAttribute("projectTable",resp);
-                model.addAttribute("roles",roleDAO.getRoles());
-                return "redirect:/constructor/selectRoles/" + resp.getId();
-            }
-            return "redirect:/constructor/index";
-        }
-        return "redirect:/constructor/index";
-    }
-
 }

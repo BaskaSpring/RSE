@@ -25,5 +25,5 @@ public interface CustomTableRepository extends JpaRepository<CustomTable,String>
 
 
     @Query("select x from CustomTable  as x")
-    List<CustomTable> getAllProjects();
+    List<CustomTable> getAllTables();
 }

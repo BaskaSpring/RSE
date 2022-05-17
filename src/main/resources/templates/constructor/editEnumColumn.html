@@ -12,7 +12,7 @@
 
 <div class="container mt-5 pt-5">
     Перечисления
-    <form th:action="@{/constructor/edit/{tableId}/editProps/{propId}/selectEnum/(tableId=${table.id},propId=${prop.id})}" method="post">
+    <form th:action="@{/constructor/edit/{tableId}/editColumn/{columnId}/editEnum/(tableId=${table.id},columnId=${column.id})}" method="post">
         <div class="input-group mb-3">
             <select name="enumId" class="form-select" id="inputGroupSelect04"
                     aria-label="Example select with button addon">
@@ -25,7 +25,7 @@
         </div>
     </form>
     <form th:object="${enumPayload}"
-          th:action="@{/constructor/edit/{tableId}/editProps/{propId}/selectEnum/add(tableId=${table.id},propId=${prop.id})}"
+          th:action="@{/constructor/edit/{tableId}/editColumn/{columnId}/selectEnum/add(tableId=${table.id},columnId=${column.id})}"
           method="post">
         <div class="input-group mb-3">
             <span class="input-group-text" id="inputGroup-sizing-default">Имя перечисления</span>
@@ -51,27 +51,27 @@
             </td>
             <td>
                 <a class="btn btn-danger"
-                   th:href="@{/constructor/edit/{tableId}/editProps/{propId}/editEnum/{enumId}/delete/{value}(tableId=${table.id},propId=${prop.id},enumId=${enumValues.id},value=${values})}"
+                   th:href="@{/constructor/edit/{tableId}/editColumn/{columnId}/editColumn/{enumId}/delete/{value}(tableId=${table.id},columnId=${column.id},enumId=${enumValues.id},value=${values})}"
                    role="button">Удалить</a>
             </td>
         </tr>
-            <form th:object="${enumPayload}" th:action="@{/constructor/edit/{tableId}/editProps/{propId}/editEnum/{enumId}/add(tableId=${table.id},propId=${prop.id},enumId=${enumValues.id})}" method="post">
-                <tr class="even pointer">
-                    <td><div>
-                        <input type="text" th:field="*{name}" class="form-control" aria-label="Sizing example input"
-                               aria-describedby="inputGroup-sizing-default">
-                    </div>
-                    </td>
-                    <td>
-                        <button class="btn btn-primary" type="submit">Добавить</button>
-                    </td>
-                </tr>
-            </form>
+        <form th:object="${enumPayload}" th:action="@{/constructor/edit/{tableId}/editColumn/{columnId}/editEnum/{enumId}/add(tableId=${table.id},columnId=${column.id},enumId=${enumValues.id})}" method="post">
+            <tr class="even pointer">
+                <td><div>
+                    <input type="text" th:field="*{name}" class="form-control" aria-label="Sizing example input"
+                           aria-describedby="inputGroup-sizing-default">
+                </div>
+                </td>
+                <td>
+                    <button class="btn btn-primary" type="submit">Добавить</button>
+                </td>
+            </tr>
+        </form>
         </tbody>
     </table>
 
 
-    <a class="btn btn-success mt-3" th:href="@{/constructor/edit/{tableId}/editProps(tableId=${table.id})}"
+    <a class="btn btn-success mt-3" th:href="@{/constructor/edit/{tableId}/editColumn(tableId=${table.id})}"
        role="button">Вернуться</a>
 </div>
 

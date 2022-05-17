@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="utf-8">
+    <title>Конструктор</title>
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/5.1.3/css/bootstrap.min.css} "/>
+</head>
+<body>
+
+<header th:insert="header :: header"></header>
+
+<div class="container mt-5 pt-5">
+    Перечисления
+    <form th:action="@{/constructor/edit/{tableId}/editColumn/{columnId}/editEnum/(tableId=${table.id},columnId=${column.id})}" method="post">
+        <div class="input-group mb-3">
+            <select name="enumId" class="form-select" id="inputGroupSelect04"
+                    aria-label="Example select with button addon">
+                <option th:each="enum : ${enumValuesList}"
+                        th:value="${enum.id}"
+                        th:text="${enum.name}">Тип
+                </option>
+            </select>
+            <button type="submit" class="btn btn-primary">Выбрать</button>
+        </div>
+    </form>
+    <form th:object="${enumPayload}"
+          th:action="@{/constructor/edit/{tableId}/editColumn/{columnId}/selectEnum/add(tableId=${table.id},columnId=${column.id})}"
+          method="post">
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="inputGroup-sizing-default">Имя перечисления</span>
+            <input type="text" th:field="*{name}" class="form-control" aria-label="Sizing example input"
+                   aria-describedby="inputGroup-sizing-default">
+            <button type="submit" class="btn btn-primary">Добавить</button>
+        </div>
+    </form>
+    <a class="btn btn-success mt-3" th:href="@{/constructor/edit/{tableId}/editColumn(tableId=${table.id})}"
+       role="button">Вернуться</a>
+</div>
+
+<script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>
+<script th:src="@{/webjars/popper.js/1.16.0/umd/popper.min.js}"></script>
+<script th:src="@{/webjars/bootstrap/5.1.3/js/bootstrap.min.js}"></script>
+</body>
+</html>

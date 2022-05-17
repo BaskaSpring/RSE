@@ -21,9 +21,13 @@ public class CustomTableDAO {
         return customTableRepository.findByName(name).isPresent();
     }
 
+    public void deleteCustomTable(CustomTable customTable){
+        customTableRepository.delete(customTable);
+    }
 
-    public List<CustomTable> getProjectList(){
-        return customTableRepository.getAllProjects();
+
+    public List<CustomTable> getCustomTableList(){
+        return customTableRepository.getAllTables();
     }
 
     public Set<CustomTable> getProjectsByRoles(Set<Role> roles){

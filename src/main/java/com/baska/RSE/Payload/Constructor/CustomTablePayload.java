@@ -12,7 +12,9 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 public class CustomTablePayload {
 
-    @Size(min=5, max = 75, message = "количество символов должно быть между 5 и 75")
+    @Size(min=3, max = 75, message = "количество символов должно быть между 3 и 75")
     private String name;
+
+    private String bool;
 
 }
