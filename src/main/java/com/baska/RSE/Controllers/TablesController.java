@@ -8,6 +8,7 @@ import com.baska.RSE.DAO.UserDAO;
 import com.baska.RSE.Models.*;
 import com.baska.RSE.Models.ObjectData;
 import com.baska.RSE.Payload.Tables.MapPayload;
+import com.baska.RSE.Payload.Tables.PropPayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,10 +33,9 @@ public class TablesController {
     @Autowired
     PermissionAndAccessDAO permissionAndAccessDAO;
 
-
-    @PostMapping("/{projectTableId}/{idObject}")
+    @PostMapping("/{tableId}/{idObject}")
     public String postNew(@ModelAttribute("object") MapPayload object,
-                          @PathVariable String projectTableId,
+                          @PathVariable String tableId,
                           @PathVariable String idObject,
                           Principal principal,
                           Model model) {
@@ -48,44 +48,52 @@ public class TablesController {
             return "redirect:/tables/index";
         }
         objectsDAO.addNewRow(object,objectsData);
-        return "redirect:/tables/"+projectTableId+"/"+idObject;
+        return "redirect:/tables/"+tableId+"/"+idObject;
     }
 
-//    @GetMapping("/{projectTableId}/{idObject}")
-//    public String getEditObject(@PathVariable String projectTableId,@PathVariable String idObject, Principal principal,Model model) {
-//        boolean havePermission = permissionAndAccessDAO.checkObjectsUser(idObject,principal.getName());
-//        if (!havePermission){
-//            return "redirect:/tables/index";
-//        }
-//        User user = userDAO.getUserByUserName(principal.getName());
-//        ObjectData objectsData = objectsDAO.getObjectsDataOrCreateNew(idObject,user,projectTableId);
-//        CustomTable customTable = customTableDAO.getProjectTableById(projectTableId);
-//        MapPayload mapPayload = new MapPayload();
-//        Map<Types,String> columnStringMap = new HashMap<>();
-//        HashMap<Long,List<String>> enumValues = new HashMap<>();
-//        Set<Types> tableColumns = customTable.getColumns();
-//        for (Types el: tableColumns) {
-//            columnStringMap.put(el, "");
-//            if (el.getEType()== EType.ENUM){
-//                Long key = el.getId();
-//                List<String> values = new ArrayList<>();
-//                el.getEnumTypes().forEach(x->values.add(x.getValue()));
-//                enumValues.put(key,values);
-//            }
-//        }
-//        List<Map<Long,String>> tableValues = new ArrayList<>();
-//        for (TableValues value:objectsData.getValues()){
-//            Map<Long,String> rowValue = value.getRowValues();
-//            tableValues.add(rowValue);
-//        }
-//        mapPayload.setObjects(columnStringMap);
-//        model.addAttribute("tableValues",tableValues);
-//        model.addAttribute("objectsData",objectsData);
-//        model.addAttribute("mapPayload",mapPayload);
-//        model.addAttribute("columns",tableColumns);
-//        model.addAttribute("projectTable", customTable);
-//        return "tables/editTable";
-//    }
+    @GetMapping("/{tableId}/{idObject}")
+    public String getEditObject(@PathVariable String tableId,@PathVariable String idObject, Principal principal,Model model) {
+        boolean havePermission = permissionAndAccessDAO.checkObjectsUser(idObject,principal.getName());
+        if (!havePermission){
+            return "redirect:/tables/index";
+        }
+        User user = userDAO.getUserByUserName(principal.getName());
+        ObjectData objectsData = objectsDAO.getObjectsDataOrCreateNew(idObject,user,tableId);
+        CustomTable customTable = customTableDAO.getCustomTableById(tableId);
+        MapPayload mapPayload = new MapPayload();
+        Map<Types,String> columnStringMap = new HashMap<>();
+        HashMap<Long,List<String>> enumValues = new HashMap<>();
+        Set<Types> tableColumns = customTable.getColumns();
+        for (Types el: tableColumns) {
+            columnStringMap.put(el, "");
+            if (el.getEType()== EType.ENUM){
+                Long key = el.getId();
+                List<String> values = new ArrayList<>();
+                values.addAll(el.getEnumValue().getEnumTypes());
+                enumValues.put(key,values);
+            }
+        }
+        List<Map<Long,String>> tableValues = new ArrayList<>();
+        for (TableValues value:objectsData.getValues()){
+            Map<Long,String> rowValue = value.getRowValues();
+            tableValues.add(rowValue);
+        }
+        Map<Long, String> propValues = new HashMap<>();
+        PropPayload propPayload = new PropPayload();
+        propPayload.setValues(objectsData.getPropValues());
+        for (PropValues el: objectsData.getPropValues()){
+            Map<Long,String> rowValue = el.getPropValues();;
+        }
+
+
+        mapPayload.setObjects(columnStringMap);
+        model.addAttribute("tableValues",tableValues);
+        model.addAttribute("objectsData",objectsData);
+        model.addAttribute("mapPayload",mapPayload);
+        model.addAttribute("columns",tableColumns);
+        model.addAttribute("customTable", customTable);
+        return "tables/editTable";
+    }
 
 
     @GetMapping("/{projectTableId}/new")

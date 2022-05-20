@@ -27,7 +27,7 @@ public class PermissionAndAccessDAO {
         if (objectData ==null){
             return false;
         }
-        CustomTable customTable = customTableDAO.getCustomTableById(objectData.getProjectTableId());
+        CustomTable customTable = customTableDAO.getCustomTableById(objectData.getCustomTableId());
         if (customTable ==null){
             return false;
         }

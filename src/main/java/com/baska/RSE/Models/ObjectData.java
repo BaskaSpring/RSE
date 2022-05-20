@@ -29,11 +29,19 @@ public class ObjectData {
 
     private boolean enabled;
 
-    private String projectTableId;
+    private String customTableId;
 
     private String userId;
 
     private Instant timestamp =Instant.now();
+
+    @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.REFRESH)
+    @JoinTable(
+            name = "prop_values_table",
+            joinColumns = @JoinColumn(name = "objects_id"),
+            inverseJoinColumns = @JoinColumn(name = "strings_id")
+    )
+    private PropValues propValues;
 
     @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.REFRESH)
     @JoinTable(

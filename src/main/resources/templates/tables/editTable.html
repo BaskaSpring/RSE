@@ -24,7 +24,7 @@
             <div th:each="column: ${columns}">
                 <div th:each="row: ${tablerow.entrySet()}">
                     <div th:if="${row.key}==${column.id}">
-                        <div th:if="${column.EType.toString().equals('STRING')}">
+                        <div th:if="${column.EType.name().equals('STRING')}">
                             <td><input th:value="${row.value}" type="text"
                                        class="form-control"
                                        disabled
@@ -32,21 +32,21 @@
                                        aria-describedby="basic-addon1">
                             </td>
                         </div>
-                        <div th:if="${column.EType.toString().equals('DATE')}">
+                        <div th:if="${column.EType.name().equals('DATE')}">
                             <td><input th:value="${row.value}" type="date"
                                        class="form-control" placeholder="date" aria-label="Username"
                                        disabled
                                        aria-describedby="basic-addon1">
                             </td>
                         </div>
-                        <div th:if="${column.EType.toString().equals('NUMBER')}">
+                        <div th:if="${column.EType.name().equals('NUMBER')}">
                             <td><input th:value="${row.value}" type="number"
                                        class="form-control" placeholder="Number" aria-label="Username"
                                        disabled
                                        aria-describedby="basic-addon1">
                             </td>
                         </div>
-                        <div th:if="${column.EType.toString().equals('BOOLEAN')}">
+                        <div th:if="${column.EType.name().equals('BOOLEAN')}">
                             <div th:if="${row.value.equals('true')}">
                                 <td><input value="true" class="form-check-input"
                                            disabled
@@ -61,7 +61,7 @@
                                 </td>
                             </div>
                         </div>
-                        <div th:if="${column.EType.toString().equals('ENUM')}">
+                        <div th:if="${column.EType.name().equals('ENUM')}">
                             <td><input th:value="${row.value}" type="text"
                                        class="form-control"
                                        disabled
@@ -77,44 +77,44 @@
             </td>
         </tr>
         <form th:object="${mapPayload}" method="post"
-              th:action="@{/tables/{projectTableId}/{objectId}(projectTableId=${customTable.id},objectId=${objectsData.getId()})}">
+              th:action="@{/tables/{tableId}/{objectId}(tableId=${customTable.id},objectId=${objectsData.getId()})}">
             <tr class="even pointer" id="tablerow">
                 <div th:each="column: ${columns}">
                     <div th:each="myObject: ${mapPayload.objects.entrySet()}">
                         <div th:if="${myObject.key.id}==${column.id}">
                             <div class="form-group">
-                                <div th:if="${myObject.key.EType.toString().equals('STRING')}">
+                                <div th:if="${myObject.key.EType.name().equals('STRING')}">
                                     <td><input th:field="*{objects[__${myObject.key.id}__]}" type="text"
                                                class="form-control"
-                                               placeholder="STRING" aria-label="Username"
+                                               placeholder="Строка" aria-label="Username"
                                                aria-describedby="basic-addon1">
                                     </td>
                                 </div>
-                                <div th:if="${myObject.key.EType.toString().equals('DATE')}">
+                                <div th:if="${myObject.key.EType.name().equals('DATE')}">
                                     <td><input th:field="*{objects[__${myObject.key.id}__]}" type="date"
-                                               class="form-control" placeholder="date" aria-label="Username"
+                                               class="form-control" placeholder="Дата" aria-label="Username"
                                                aria-describedby="basic-addon1">
                                     </td>
                                 </div>
-                                <div th:if="${myObject.key.EType.toString().equals('NUMBER')}">
+                                <div th:if="${myObject.key.EType.name().equals('NUMBER')}">
                                     <td><input th:field="*{objects[__${myObject.key.id}__]}" type="number"
-                                               class="form-control" placeholder="Number" aria-label="Username"
+                                               class="form-control" placeholder="Число" aria-label="Username"
                                                aria-describedby="basic-addon1">
                                     </td>
                                 </div>
-                                <div th:if="${myObject.key.EType.toString().equals('BOOLEAN')}">
+                                <div th:if="${myObject.key.EType.name().equals('BOOLEAN')}">
                                     <td><input th:field="*{objects[__${myObject.key.id}__]}" class="form-check-input"
                                                type="checkbox" value="true" id="flexCheckDefault">
                                     </td>
                                 </div>
-                                <div th:if="${myObject.key.EType.toString().equals('ENUM')}">
+                                <div th:if="${myObject.key.EType.name().equals('ENUM')}">
                                     <td><select th:field="*{objects[__${myObject.key.id}__]}"
                                                 class="form-select"
                                                 id="inputGroupSelect04"
                                                 aria-label="Example select with button addon">
-                                        <option th:each="value : ${myObject.key.enumTypes}"
-                                                th:value="${value.value}"
-                                                th:text="${value.value}">Тип
+                                        <option th:each="enumValue : ${myObject.key.enumValue.enumTypes}"
+                                                th:value="${enumValue}"
+                                                th:text="${enumValue}">Тип
                                         </option>
                                     </select>
                                     </td>

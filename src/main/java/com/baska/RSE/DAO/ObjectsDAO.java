@@ -24,7 +24,7 @@ public class ObjectsDAO {
     public ObjectData newObject(CustomTable customTable){
         ObjectData objectData = new ObjectData();
         objectData.setEnabled(true);
-        objectData.setProjectTableId(customTable.getId());
+        objectData.setCustomTableId(customTable.getId());
         return objectsDataRepository.save(objectData);
     }
 
@@ -40,7 +40,7 @@ public class ObjectsDAO {
              ObjectData newObjectData = new ObjectData();
              newObjectData.setUserId(user.getId());
              newObjectData.setEnabled(true);
-             newObjectData.setProjectTableId(projectTableId);
+             newObjectData.setCustomTableId(projectTableId);
              return objectsDataRepository.save(newObjectData);
          }
 
