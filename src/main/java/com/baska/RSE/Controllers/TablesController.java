@@ -78,15 +78,13 @@ public class TablesController {
             Map<Long,String> rowValue = value.getRowValues();
             tableValues.add(rowValue);
         }
-        Map<Long, String> propValues = new HashMap<>();
         PropPayload propPayload = new PropPayload();
-        propPayload.setValues(objectsData.getPropValues());
-        for (PropValues el: objectsData.getPropValues()){
-            Map<Long,String> rowValue = el.getPropValues();;
-        }
-
+        propPayload.setValues(objectsData.getPropValues().getPropValues());
+        Set<Types> tableProps = customTable.getProps();
 
         mapPayload.setObjects(columnStringMap);
+        model.addAttribute("tableProps",tableProps);
+        model.addAttribute("propPayload",propPayload);
         model.addAttribute("tableValues",tableValues);
         model.addAttribute("objectsData",objectsData);
         model.addAttribute("mapPayload",mapPayload);

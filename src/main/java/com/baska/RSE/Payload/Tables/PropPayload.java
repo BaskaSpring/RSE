@@ -14,6 +14,6 @@ import java.util.Map;
 @NoArgsConstructor
 public class PropPayload {
 
-    Map<Types,String> values =  new HashMap<>();
+    Map<Long,String> values =  new HashMap<>();
 
 }
